@@ -1,7 +1,10 @@
 import express, { Express } from "express";
-import { rootRouter } from "./routes/index.route";
 import dotenv from "dotenv";
 dotenv.config();
+import { rootRouter } from "./routes/index.route";
+
+import connectDB from "./config/db.config";
+connectDB();
 
 const app: Express = express();
 
