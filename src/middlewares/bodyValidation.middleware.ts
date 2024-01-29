@@ -1,5 +1,8 @@
 import { NextFunction, Request, Response, Router } from "express";
-import { registerBodySchema } from "../config/zodSchema.config";
+import {
+  loginBodySchema,
+  registerBodySchema,
+} from "../config/zodSchema.config";
 
 const getZodErrors = (errors: any) => {
   return errors?.reduce(
@@ -17,6 +20,20 @@ export const validateRegisterBody = (
   next: NextFunction
 ) => {
   const validate = registerBodySchema.safeParse(req.body);
+
+  if (!validate.success) {
+    return res.status(400).json(getZodErrors(validate.error.errors));
+  }
+
+  next();
+};
+
+export const validateLoginBody = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const validate = loginBodySchema.safeParse(req.body);
 
   if (!validate.success) {
     return res.status(400).json(getZodErrors(validate.error.errors));

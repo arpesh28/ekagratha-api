@@ -20,3 +20,11 @@ export const registerBodySchema = z.object({
       message: "Password must contain at least one special character.",
     }),
 });
+
+export const loginBodySchema = z.object({
+  email: z
+    .string()
+    .email({ message: "Email must be a valid email address" })
+    .min(1, { message: "Email is required" }),
+  password: z.string(),
+});

@@ -1,10 +1,17 @@
 import { Express, Request, Response, Router } from "express";
-import { validateRegisterBody } from "../middlewares/bodyValidation.middleware";
+import {
+  validateLoginBody,
+  validateRegisterBody,
+} from "../middlewares/bodyValidation.middleware";
 import { User } from "../models/User.model";
 import jwt from "jsonwebtoken";
-import { bcryptPassword } from "../controllers/auth.controller";
+import {
+  bcryptPassword,
+  comparePasswords,
+} from "../controllers/auth.controller";
 const router = Router();
 
+// Register Endpoint
 router.post(
   "/register",
   validateRegisterBody,
@@ -35,10 +42,33 @@ router.post(
   }
 );
 
-router.post("/login", (req: Request, res: Response) => {
-  res.json({
-    message: "Hello Log",
-  });
-});
+router.post(
+  "/login",
+  validateLoginBody,
+  async (req: Request, res: Response) => {
+    const user = await User.findOne({ email: req.body.email });
+
+    if (!user) return res.status(401).json({ message: "Email not found!" });
+
+    const validPass: boolean = await comparePasswords(
+      req.body.password,
+      user.password
+    );
+    if (!validPass)
+      return res.status(401).json({ message: "Email/Password is incorrect" });
+
+    const token = jwt.sign(
+      { email: user.email, name: user.name },
+      process.env.JWT_SECRET!
+    );
+
+    res.json({
+      data: {
+        user: { email: user.email, name: user.name, _id: user._id },
+        token,
+      },
+    });
+  }
+);
 
 export const authRouter = router;
