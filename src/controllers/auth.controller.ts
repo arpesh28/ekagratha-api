@@ -2,9 +2,9 @@ import { Request, Response } from "express";
 import { User } from "../models/User.model";
 import { bcryptPassword, comparePasswords } from "../config/helpers";
 import jwt from "jsonwebtoken";
-import { OAuth2Client } from "google-auth-library";
 import axios from "axios";
 
+// Local Register
 const registerController = async (req: Request, res: Response) => {
   const existingUser = await User.findOne({ email: req.body.email });
 
@@ -31,6 +31,7 @@ const registerController = async (req: Request, res: Response) => {
   });
 };
 
+// Local Login
 const loginController = async (req: Request, res: Response) => {
   const user = await User.findOne({ email: req.body.email });
 
@@ -68,8 +69,12 @@ const googleAuthGetURLController = async (req: Request, res: Response) => {
 const googleAuthCallbackController = async (req: Request, res: Response) => {
   const { code } = req.query; // Get code from the front end
 
+  // Validate google authentication code
+  if (!code)
+    res.status(400).json({ message: "Google Authorization Code is required!" });
+
   try {
-    // Get tokens from google
+    // Exchange code for token from google
     const tokenResponse = await axios.post(
       "https://oauth2.googleapis.com/token",
       {
@@ -96,7 +101,9 @@ const googleAuthCallbackController = async (req: Request, res: Response) => {
     res.json({ tokenResponse: tokenResponse?.data, userProfile });
   } catch (error: any) {
     console.error("Error exchanging code for token:", error?.response?.data);
-    res.status(500).json({ message: "Failed to authenticate with Google" });
+    res
+      .status(500)
+      .json({ message: "Failed to authenticate with Google", error });
   }
 };
 
