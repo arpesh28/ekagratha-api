@@ -3,6 +3,7 @@ import { User } from "../models/User.model";
 import { bcryptPassword, comparePasswords } from "../config/helpers";
 import jwt from "jsonwebtoken";
 import { OAuth2Client } from "google-auth-library";
+import axios from "axios";
 
 const registerController = async (req: Request, res: Response) => {
   const existingUser = await User.findOne({ email: req.body.email });
@@ -55,13 +56,53 @@ const loginController = async (req: Request, res: Response) => {
   });
 };
 
+// Get Google Auth URL
 const googleAuthGetURLController = async (req: Request, res: Response) => {
-  console.log("host:", req.get("host"));
-
+  // URL with client ID and redirect url for frontend
   const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id=${process.env.GOOGLE_CLIENT_ID}&redirect_uri=${process.env.GOOGLE_REDIRECT_URI}&scope=email%20profile`;
 
   res.json({ data: authUrl });
 };
-const googleAuthCallbackController = async (req: Request, res: Response) => {};
 
-export { registerController, loginController, googleAuthGetURLController };
+// Verify google code and save the user profile
+const googleAuthCallbackController = async (req: Request, res: Response) => {
+  const { code } = req.query; // Get code from the front end
+
+  try {
+    // Get tokens from google
+    const tokenResponse = await axios.post(
+      "https://oauth2.googleapis.com/token",
+      {
+        code,
+        client_id: process.env.GOOGLE_CLIENT_ID,
+        client_secret: process.env.GOOGLE_CLIENT_SECRET,
+        redirect_uri: process.env.GOOGLE_REDIRECT_URI,
+        grant_type: "authorization_code",
+      }
+    );
+
+    // Use the access token and fetch user profile
+    const accessToken = tokenResponse?.data?.access_token;
+    const profileResponse = await axios.get(
+      "https://www.googleapis.com/oauth2/v3/userinfo",
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
+    const userProfile = profileResponse.data; // User profile that will be stored in the DB
+
+    res.json({ tokenResponse: tokenResponse?.data, userProfile });
+  } catch (error: any) {
+    console.error("Error exchanging code for token:", error?.response?.data);
+    res.status(500).json({ message: "Failed to authenticate with Google" });
+  }
+};
+
+export {
+  registerController,
+  loginController,
+  googleAuthGetURLController,
+  googleAuthCallbackController,
+};
