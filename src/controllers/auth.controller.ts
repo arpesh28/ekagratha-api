@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { User } from "../models/User.model";
 import { bcryptPassword, comparePasswords } from "../config/helpers";
 import jwt from "jsonwebtoken";
+import { OAuth2Client } from "google-auth-library";
 
 const registerController = async (req: Request, res: Response) => {
   const existingUser = await User.findOne({ email: req.body.email });
@@ -54,4 +55,13 @@ const loginController = async (req: Request, res: Response) => {
   });
 };
 
-export { registerController, loginController };
+const googleAuthGetURLController = async (req: Request, res: Response) => {
+  console.log("host:", req.get("host"));
+
+  const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id=${process.env.GOOGLE_CLIENT_ID}&redirect_uri=${process.env.GOOGLE_REDIRECT_URI}&scope=email%20profile`;
+
+  res.json({ data: authUrl });
+};
+const googleAuthCallbackController = async (req: Request, res: Response) => {};
+
+export { registerController, loginController, googleAuthGetURLController };
