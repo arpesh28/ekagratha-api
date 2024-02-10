@@ -1,5 +1,7 @@
 import { Router } from "express";
 import {
+  googleAuthCallbackController,
+  googleAuthGetURLController,
   loginController,
   registerController,
 } from "../controllers/auth.controller";
@@ -10,8 +12,12 @@ import {
 
 const router = Router();
 
-// Auth Routes
-router.post("/register", validateRegisterBody, registerController);
-router.post("/login", validateLoginBody, loginController);
+// Local Auth Routes
+router.post("/register", validateRegisterBody, registerController); // Local Register Route
+router.post("/login", validateLoginBody, loginController); // Local Login Route
+
+//  Google Auth Routes
+router.get("/google/url", googleAuthGetURLController); // Get Google auth url with client id and redirect url
+router.get("/google/callback", googleAuthCallbackController); // Get Google access token using code and save the user profile to DB
 
 export const authRouter = router;

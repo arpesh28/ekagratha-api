@@ -1,4 +1,5 @@
 import mongoose, { Schema } from "mongoose";
+import { Providers } from "../typings/enum";
 
 const userSchema = new Schema(
   {
@@ -17,7 +18,17 @@ const userSchema = new Schema(
     },
     password: {
       type: String,
+      required: false,
+    },
+    provider: {
+      type: String,
       required: true,
+      enum: Object.values(Providers),
+      default: Providers.Email,
+    },
+    providerUserId: {
+      type: String,
+      required: false,
     },
   },
   { timestamps: true }
