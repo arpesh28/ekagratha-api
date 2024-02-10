@@ -19,6 +19,12 @@ const userSchema = new Schema(
       type: String,
       required: true,
     },
+    personalTasks:[
+      { 
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: 'Task' 
+      }
+    ]
   },
   { timestamps: true }
 );

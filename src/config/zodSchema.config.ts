@@ -1,5 +1,11 @@
+import mongoose from "mongoose";
 import z from "zod";
-
+// import { PriorityEnum } from "./constants.config";
+enum PriorityEnum {
+  High = 'High',
+  Medium = 'Medium',
+  Low = 'Low',
+}
 export const registerBodySchema = z.object({
   name: z.string().min(1, { message: "Name is required" }).max(50),
   email: z
@@ -28,3 +34,10 @@ export const loginBodySchema = z.object({
     .min(1, { message: "Email is required" }),
   password: z.string(),
 });
+
+export const taskBodySchema= z.object({
+  title:z.string().min(1, { message: "Title is required" }).max(100),
+  description:z.string(),
+  priority:z.nativeEnum(PriorityEnum),
+  userId:z.custom<mongoose.Types.ObjectId>()
+})
