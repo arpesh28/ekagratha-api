@@ -129,6 +129,7 @@ const googleAuthCallbackController = async (req: Request, res: Response) => {
     );
     const userProfile: ProviderUserProfile = profileResponse.data; // User profile that will be stored in the DB
 
+    // Validate if user email already exists in the DB
     const existingUser = await User.findOne({ email: userProfile?.email });
 
     if (existingUser) {
@@ -147,6 +148,7 @@ const googleAuthCallbackController = async (req: Request, res: Response) => {
           email: existingUser.email,
           name: existingUser.name,
           _id: existingUser._id,
+          provider: existingUser.provider,
         },
         process.env.JWT_SECRET!
       );
@@ -216,28 +218,101 @@ const discordAuthCallbackController = async (req: Request, res: Response) => {
       .json({ message: errorMessages.DISCORD_CODE_MISSING });
 
   try {
-    // Exchange code for token from google
-
+    // Exchange code for token from discord
     const tokenResponse = await axios.post(
       "https://discord.com/api/oauth2/token",
       {
-        code,
         client_id: process.env.DISCORD_CLIENT_ID,
         client_secret: process.env.DISCORD_CLIENT_SECRET,
-        redirect_uri: process.env.DISCORD_REDIRECT_URI,
         grant_type: "authorization_code",
+        code: code,
+        redirect_uri: process.env.DISCORD_REDIRECT_URI,
+        scope: "identify email",
+      },
+      {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
       }
     );
+
     // Fetch user data using the access token
     const accessToken = tokenResponse?.data?.access_token;
-    const userResponse = await axios.get("https://discord.com/api/users/@me", {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
+    const profileResponse = await axios.get(
+      "https://discord.com/api/users/@me",
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
+
+    // Validate if user email already exists in the DB
+    const userProfile: ProviderUserProfile = profileResponse.data; // User profile that will be stored in the DB
+
+    // Validate if user email already exists in the DB
+    const existingUser = await User.findOne({ email: userProfile?.email });
+
+    if (existingUser) {
+      if (existingUser.provider !== Providers.Discord)
+        return res.status(400).json({
+          message: errorMessages.EMAIL_REGISTERED_WITH_OTHER_PROVIDER,
+        });
+
+      if (existingUser.providerUserId !== userProfile.sub) {
+        return res.status(401).json({
+          message: errorMessages.UNKNOWN_SUBSCRIBER_ID,
+        });
+      }
+      const token = jwt.sign(
+        {
+          email: existingUser.email,
+          name: existingUser.name,
+          _id: existingUser._id,
+          provider: existingUser.provider,
+        },
+        process.env.JWT_SECRET!
+      );
+      return res.json({
+        data: {
+          user: {
+            email: existingUser.email,
+            name: existingUser.name,
+            _id: existingUser._id,
+            provider: existingUser.provider,
+          },
+          token,
+        },
+      });
+    }
+    const newUser = await User.create({
+      email: userProfile.email,
+      name: userProfile.username,
+      providerUserId: userProfile.id,
+      provider: Providers.Discord,
+    });
+
+    if (!newUser)
+      return res.status(500).json({
+        message: errorMessages.SOMETHING_WRONG,
+      });
+
+    const token = jwt.sign(
+      {
+        email: newUser.email,
+        name: newUser.name,
+        _id: newUser._id,
+        provider: newUser.provider,
+      },
+      process.env.JWT_SECRET!
+    );
+
+    res.json({
+      data: {
+        user: newUser,
+        token,
       },
     });
-    console.log("user:", userResponse);
-
-    res.json({ userResponse, tokenResponse });
   } catch (error: any) {
     console.error("Error exchanging code for token:", error?.response?.data);
     res.status(500).json({ message: errorMessages.DISCORD_AUTH_FAILED });
