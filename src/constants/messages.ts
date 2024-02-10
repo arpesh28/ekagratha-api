@@ -11,4 +11,6 @@ export const errorMessages = {
   GOOGLE_AUTH_FAILED: "Failed to authenticate with Google",
   DISCORD_CODE_MISSING: "Discord Authorization Code is required!",
   DISCORD_AUTH_FAILED: "Failed to authenticate with Discord",
+  GITHUB_CODE_MISSING: "Github Authorization Code is required!",
+  GITHUB_AUTH_FAILED: "Failed to authenticate with Github",
 };

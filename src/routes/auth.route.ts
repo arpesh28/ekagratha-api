@@ -2,6 +2,8 @@ import { Router } from "express";
 import {
   discordAuthCallbackController,
   discordAuthGetURLController,
+  githubAuthCallbackController,
+  githubAuthGetURLController,
   googleAuthCallbackController,
   googleAuthGetURLController,
   loginController,
@@ -25,5 +27,9 @@ router.get("/google/callback", googleAuthCallbackController); // Get Google acce
 //  Discord Auth Routes
 router.get("/discord/url", discordAuthGetURLController); // Get Discord auth url with client id and redirect url
 router.get("/discord/callback", discordAuthCallbackController); // Get Discord access token using code and save the user profile to DB
+
+//  Github Auth Routes
+router.get("/github/url", githubAuthGetURLController); // Get Github auth url with client id and redirect url
+router.get("/github/callback", githubAuthCallbackController); // Get Github access token using code and save the user profile to DB
 
 export const authRouter = router;
