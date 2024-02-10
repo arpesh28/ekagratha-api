@@ -96,13 +96,13 @@ const googleAuthGetURLController = async (req: Request, res: Response) => {
   res.json({ data: authUrl });
 };
 
-// Verify google code and save the user profile
+// Verify google code and save the user profile to DB
 const googleAuthCallbackController = async (req: Request, res: Response) => {
   const { code } = req.query; // Get code from the front end
 
   // Validate google authentication code
   if (!code)
-    res.status(400).json({ message: errorMessages.GOOGLE_CODE_MISSING });
+    return res.status(400).json({ message: errorMessages.GOOGLE_CODE_MISSING });
 
   try {
     // Exchange code for token from google
@@ -117,7 +117,7 @@ const googleAuthCallbackController = async (req: Request, res: Response) => {
       }
     );
 
-    // Use the access token and fetch user profile
+    // Fetch user data using the access token
     const accessToken = tokenResponse?.data?.access_token;
     const profileResponse = await axios.get(
       "https://www.googleapis.com/oauth2/v3/userinfo",
@@ -197,9 +197,58 @@ const googleAuthCallbackController = async (req: Request, res: Response) => {
   }
 };
 
+// Get Discord Auth URL
+const discordAuthGetURLController = async (req: Request, res: Response) => {
+  // URL with client ID and redirect url for frontend
+  const authUrl = `https://discord.com/api/oauth2/authorize?client_id=${process.env.DISCORD_CLIENT_ID}&response_type=code&redirect_uri=${process.env.DISCORD_REDIRECT_URI}&scope=identify+email`;
+
+  res.json({ data: authUrl });
+};
+
+//  Verify discord code and save the user profile to DB
+const discordAuthCallbackController = async (req: Request, res: Response) => {
+  const { code } = req.query; // Get code from the front end
+
+  // Validate discord authentication code
+  if (!code)
+    return res
+      .status(400)
+      .json({ message: errorMessages.DISCORD_CODE_MISSING });
+
+  try {
+    // Exchange code for token from google
+
+    const tokenResponse = await axios.post(
+      "https://discord.com/api/oauth2/token",
+      {
+        code,
+        client_id: process.env.DISCORD_CLIENT_ID,
+        client_secret: process.env.DISCORD_CLIENT_SECRET,
+        redirect_uri: process.env.DISCORD_REDIRECT_URI,
+        grant_type: "authorization_code",
+      }
+    );
+    // Fetch user data using the access token
+    const accessToken = tokenResponse?.data?.access_token;
+    const userResponse = await axios.get("https://discord.com/api/users/@me", {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+    console.log("user:", userResponse);
+
+    res.json({ userResponse, tokenResponse });
+  } catch (error: any) {
+    console.error("Error exchanging code for token:", error?.response?.data);
+    res.status(500).json({ message: errorMessages.DISCORD_AUTH_FAILED });
+  }
+};
+
 export {
   registerController,
   loginController,
   googleAuthGetURLController,
   googleAuthCallbackController,
+  discordAuthGetURLController,
+  discordAuthCallbackController,
 };

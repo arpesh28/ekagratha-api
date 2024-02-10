@@ -9,4 +9,6 @@ export const errorMessages = {
   INVALID_CREDENTIALS: "Email not found!",
   GOOGLE_CODE_MISSING: "Google Authorization Code is required!",
   GOOGLE_AUTH_FAILED: "Failed to authenticate with Google",
+  DISCORD_CODE_MISSING: "Discord Authorization Code is required!",
+  DISCORD_AUTH_FAILED: "Failed to authenticate with Discord",
 };
