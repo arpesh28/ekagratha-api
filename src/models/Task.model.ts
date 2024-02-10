@@ -3,26 +3,26 @@ import { PriorityEnum } from "../config/constants.config";
 
 const taskSchema = new Schema(
   {
-    title:{
-        type : String,
-        required:true,
-        trim:true,
-        kMaxLength:100,
+    title: {
+      type: String,
+      required: true,
+      trim: true,
+      kMaxLength: 100,
     },
-    description:{
-        type:String,
-        trim:true,
-        tags:[String],
+    description: {
+      type: String,
+      trim: true,
+      tags: [String],
     },
-    priority:{
-        type:String,
-        enum:["Medium","High","Low"],
-        default:'Medium'
+    priority: {
+      type: String,
+      enum: PriorityEnum,
+      default: 'Medium'
     },
-    userId:{
-      type:mongoose.Schema.Types.ObjectId,
-      required:true,
-      ref:'User'
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+      ref: 'User'
     }
   },
   { timestamps: true }
