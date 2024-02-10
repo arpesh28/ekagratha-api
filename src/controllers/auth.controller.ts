@@ -361,10 +361,24 @@ const githubAuthCallbackController = async (req: Request, res: Response) => {
         Authorization: `Bearer ${accessToken}`,
       },
     });
+
+    // Fetch user's private email address using the access token
+    const emailResponse = await axios.get(
+      "https://api.github.com/user/emails",
+      {
+        headers: {
+          Accept: "/",
+          "Accept-Encoding": "gzip, deflate, br",
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
+
     const userProfile: ProviderUserProfile = profileResponse.data; // User profile that will be stored in the DB
+    const userEmail: string = emailResponse?.data?.[0]?.email; // User profile that will be stored in the DB
 
     // // Validate if user email already exists in the DB
-    const existingUser = await User.findOne({ email: userProfile?.email });
+    const existingUser = await User.findOne({ email: userEmail });
 
     if (existingUser) {
       if (existingUser.provider !== Providers.Github)
@@ -399,8 +413,8 @@ const githubAuthCallbackController = async (req: Request, res: Response) => {
       });
     }
     const newUser = await User.create({
-      email: userProfile.email,
-      name: userProfile.username,
+      email: userEmail,
+      name: userProfile.name,
       providerUserId: userProfile.id,
       provider: Providers.Github,
     });
@@ -419,7 +433,6 @@ const githubAuthCallbackController = async (req: Request, res: Response) => {
       },
       process.env.JWT_SECRET!
     );
-    // res.json(userProfile);
     res.json({
       data: {
         user: newUser,
