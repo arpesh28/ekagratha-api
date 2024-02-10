@@ -207,7 +207,7 @@ const discordAuthGetURLController = async (req: Request, res: Response) => {
   res.json({ data: authUrl });
 };
 
-//  Verify discord code and save the user profile to DB
+//  Verify Discord code and save the user profile to DB
 const discordAuthCallbackController = async (req: Request, res: Response) => {
   const { code } = req.query; // Get code from the front end
 
@@ -259,7 +259,7 @@ const discordAuthCallbackController = async (req: Request, res: Response) => {
           message: errorMessages.EMAIL_REGISTERED_WITH_OTHER_PROVIDER,
         });
 
-      if (existingUser.providerUserId !== userProfile.sub) {
+      if (existingUser.providerUserId !== userProfile.id) {
         return res.status(401).json({
           message: errorMessages.UNKNOWN_SUBSCRIBER_ID,
         });
@@ -280,6 +280,7 @@ const discordAuthCallbackController = async (req: Request, res: Response) => {
             name: existingUser.name,
             _id: existingUser._id,
             provider: existingUser.provider,
+            providerUserId: existingUser.providerUserId,
           },
           token,
         },
@@ -319,11 +320,128 @@ const discordAuthCallbackController = async (req: Request, res: Response) => {
   }
 };
 
+// Get Github Auth URL
+const githubAuthGetURLController = async (req: Request, res: Response) => {
+  // URL with client ID and redirect url for frontend
+  const authUrl = `https://github.com/login/oauth/authorize?client_id=${process.env.GITHUB_CLIENT_ID}&redirect_uri=${process.env.GITHUB_REDIRECT_URI}&scope=user+email`;
+
+  res.json({ data: authUrl });
+};
+
+//  Verify Github code and save the user profile to DB
+const githubAuthCallbackController = async (req: Request, res: Response) => {
+  const { code } = req.query; // Get code from the front end
+
+  // Validate github authentication code
+  if (!code)
+    return res.status(400).json({ message: errorMessages.GITHUB_CODE_MISSING });
+
+  try {
+    // Exchange code for token from github
+    const tokenResponse = await axios.post(
+      "https://github.com/login/oauth/access_token",
+      {
+        client_id: process.env.GITHUB_CLIENT_ID,
+        client_secret: process.env.GITHUB_CLIENT_SECRET,
+        code: code,
+        redirect_uri: process.env.GITHUB_REDIRECT_URI,
+        scope: "read:user",
+      },
+      {
+        headers: {
+          Accept: "application/json",
+        },
+      }
+    );
+
+    // Fetch user data using the access token
+    const accessToken = tokenResponse?.data?.access_token;
+    const profileResponse = await axios.get("https://api.github.com/user", {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+    const userProfile: ProviderUserProfile = profileResponse.data; // User profile that will be stored in the DB
+
+    // // Validate if user email already exists in the DB
+    const existingUser = await User.findOne({ email: userProfile?.email });
+
+    if (existingUser) {
+      if (existingUser.provider !== Providers.Github)
+        return res.status(400).json({
+          message: errorMessages.EMAIL_REGISTERED_WITH_OTHER_PROVIDER,
+        });
+      if (existingUser.providerUserId !== userProfile.id) {
+        return res.status(401).json({
+          message: errorMessages.UNKNOWN_SUBSCRIBER_ID,
+        });
+      }
+      const token = jwt.sign(
+        {
+          email: existingUser.email,
+          name: existingUser.name,
+          _id: existingUser._id,
+          provider: existingUser.provider,
+          providerUserId: existingUser.providerUserId,
+        },
+        process.env.JWT_SECRET!
+      );
+      return res.json({
+        data: {
+          user: {
+            email: existingUser.email,
+            name: existingUser.name,
+            _id: existingUser._id,
+            provider: existingUser.provider,
+          },
+          token,
+        },
+      });
+    }
+    const newUser = await User.create({
+      email: userProfile.email,
+      name: userProfile.username,
+      providerUserId: userProfile.id,
+      provider: Providers.Github,
+    });
+
+    if (!newUser)
+      return res.status(500).json({
+        message: errorMessages.SOMETHING_WRONG,
+      });
+
+    const token = jwt.sign(
+      {
+        email: newUser.email,
+        name: newUser.name,
+        _id: newUser._id,
+        provider: newUser.provider,
+      },
+      process.env.JWT_SECRET!
+    );
+    // res.json(userProfile);
+    res.json({
+      data: {
+        user: newUser,
+        token,
+      },
+    });
+  } catch (error: any) {
+    res.status(500).json({ message: errorMessages.GITHUB_AUTH_FAILED });
+  }
+};
+
 export {
+  // Email
   registerController,
   loginController,
+  // Google
   googleAuthGetURLController,
   googleAuthCallbackController,
+  // Discord
   discordAuthGetURLController,
   discordAuthCallbackController,
+  // Github
+  githubAuthGetURLController,
+  githubAuthCallbackController,
 };
