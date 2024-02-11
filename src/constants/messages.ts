@@ -9,6 +9,7 @@ export const errorMessages = {
   EMAIL_ALREADY_EXISTS: "Email already exists!",
   EMAIL_NOT_VERIFIED: "Email not verified. Please verify your email address.",
   EMAIL_ALREADY_VERIFIED: "Email is already verified!",
+  OTP_EXPIRED: "OTP is expired!",
   NO_ACTIVE_OTP: "No active otp has been sent to this email!",
   INVALID_OTP: "Invalid OTP!",
   INVALID_CREDENTIALS: "Email/Password is invalid!",

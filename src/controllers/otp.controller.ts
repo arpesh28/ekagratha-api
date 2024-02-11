@@ -91,10 +91,18 @@ const verifyOTPController = async (req: Request, res: Response) => {
         message: errorMessages.NO_ACTIVE_OTP,
       });
 
-    if (existingOTP.otp !== otp)
-      return res.status(403).json({
-        message: errorMessages.INVALID_OTP,
-      });
+    const currentTime = Date.now();
+    const elapsedOtpTime = Math.floor(
+      (currentTime - existingOTP.sentDate.getTime()) / 1000
+    );
+    if (elapsedOtpTime > 300)
+      return res.status(401).send({ message: errorMessages.OTP_EXPIRED });
+
+    if (existingOTP)
+      if (existingOTP.otp !== otp)
+        return res.status(403).json({
+          message: errorMessages.INVALID_OTP,
+        });
 
     const newUserData = await User.findOneAndUpdate(
       { email },
