@@ -25,10 +25,6 @@ const registerController = async (req: Request, res: Response) => {
     if (!user)
       return res.status(500).json({ message: errorMessages.SOMETHING_WRONG });
 
-    const token = jwt.sign(
-      { name: user.name, email: user.email },
-      process.env.JWT_SECRET!
-    );
     res.json({
       data: {
         user: {
@@ -36,8 +32,8 @@ const registerController = async (req: Request, res: Response) => {
           _id: user._id,
           name: user.name,
           provider: user.provider,
+          isVerified: false,
         },
-        token,
       },
     });
   } catch (error) {
@@ -67,8 +63,13 @@ const loginController = async (req: Request, res: Response) => {
         .status(401)
         .json({ message: errorMessages.INVALID_CREDENTIALS });
 
+    if (!user.isVerified)
+      return res
+        .status(403)
+        .json({ message: errorMessages.EMAIL_NOT_VERIFIED });
+
     const token = jwt.sign(
-      { email: user.email, name: user.name },
+      { email: user.email, name: user.name, _id: user._id },
       process.env.JWT_SECRET!
     );
 
@@ -79,6 +80,7 @@ const loginController = async (req: Request, res: Response) => {
           name: user.name,
           _id: user._id,
           provider: user.provider,
+          isVerified: user.isVerified,
         },
         token,
       },
@@ -159,6 +161,7 @@ const googleAuthCallbackController = async (req: Request, res: Response) => {
             name: existingUser.name,
             _id: existingUser._id,
             provider: existingUser.provider,
+            isVerified: existingUser.isVerified,
           },
           token,
         },
@@ -170,6 +173,7 @@ const googleAuthCallbackController = async (req: Request, res: Response) => {
       name: userProfile.name,
       providerUserId: userProfile.sub,
       provider: Providers.Google,
+      isVerified: true,
     });
 
     if (!newUser)
@@ -281,6 +285,7 @@ const discordAuthCallbackController = async (req: Request, res: Response) => {
             _id: existingUser._id,
             provider: existingUser.provider,
             providerUserId: existingUser.providerUserId,
+            isVerified: existingUser.isVerified,
           },
           token,
         },
@@ -291,6 +296,7 @@ const discordAuthCallbackController = async (req: Request, res: Response) => {
       name: userProfile.username,
       providerUserId: userProfile.id,
       provider: Providers.Discord,
+      isVerified: true,
     });
 
     if (!newUser)
@@ -407,6 +413,7 @@ const githubAuthCallbackController = async (req: Request, res: Response) => {
             name: existingUser.name,
             _id: existingUser._id,
             provider: existingUser.provider,
+            isVerified: existingUser.isVerified,
           },
           token,
         },
@@ -417,6 +424,7 @@ const githubAuthCallbackController = async (req: Request, res: Response) => {
       name: userProfile.name,
       providerUserId: userProfile.id,
       provider: Providers.Github,
+      isVerified: true,
     });
 
     if (!newUser)
