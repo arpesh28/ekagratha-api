@@ -40,3 +40,17 @@ export const taskBodySchema = z.object({
   priority: z.nativeEnum(PriorityEnum),
   userId: z.custom<mongoose.Types.ObjectId>()
 })
+export const sendOtpBodySchema = z.object({
+  email: z
+    .string()
+    .email({ message: "Email must be a valid email address" })
+    .min(1, { message: "Email is required" }),
+});
+
+export const verifyOtpBodySchema = z.object({
+  email: z
+    .string()
+    .email({ message: "Email must be a valid email address" })
+    .min(1, { message: "Email is required" }),
+  otp: z.string().length(4, { message: "OTP must be of length 4" }),
+});

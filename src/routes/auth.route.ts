@@ -1,17 +1,45 @@
 import { Router } from "express";
 import {
+  discordAuthCallbackController,
+  discordAuthGetURLController,
+  githubAuthCallbackController,
+  githubAuthGetURLController,
+  googleAuthCallbackController,
+  googleAuthGetURLController,
   loginController,
   registerController,
 } from "../controllers/auth.controller";
 import {
   validateLoginBody,
   validateRegisterBody,
+  validateSendOtpBody,
+  validateVerifyOtpBody,
 } from "../middlewares/bodyValidation.middleware";
+import {
+  sendOTPController,
+  verifyOTPController,
+} from "../controllers/otp.controller";
 
 const router = Router();
 
-// Auth Routes
-router.post("/register", validateRegisterBody, registerController);
-router.post("/login", validateLoginBody, loginController);
+// Local Auth Routes
+router.post("/register", validateRegisterBody, registerController); // Local Register Route
+router.post("/login", validateLoginBody, loginController); // Local Login Route
+
+//  Google Auth Routes
+router.get("/google/url", googleAuthGetURLController); // Get Google auth url with client id and redirect url
+router.get("/google/callback", googleAuthCallbackController); // Get Google access token using code and save the user profile to DB
+
+//  Discord Auth Routes
+router.get("/discord/url", discordAuthGetURLController); // Get Discord auth url with client id and redirect url
+router.get("/discord/callback", discordAuthCallbackController); // Get Discord access token using code and save the user profile to DB
+
+//  Github Auth Routes
+router.get("/github/url", githubAuthGetURLController); // Get Github auth url with client id and redirect url
+router.get("/github/callback", githubAuthCallbackController); // Get Github access token using code and save the user profile to DB
+
+// Email Verification Routes
+router.post("/send-otp", validateSendOtpBody, sendOTPController); // Send OTP to email for verification
+router.post("/verify-otp", validateVerifyOtpBody, verifyOTPController); // Verify OTP for email verification
 
 export const authRouter = router;
