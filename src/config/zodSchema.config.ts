@@ -28,3 +28,18 @@ export const loginBodySchema = z.object({
     .min(1, { message: "Email is required" }),
   password: z.string(),
 });
+
+export const sendOtpBodySchema = z.object({
+  email: z
+    .string()
+    .email({ message: "Email must be a valid email address" })
+    .min(1, { message: "Email is required" }),
+});
+
+export const verifyOtpBodySchema = z.object({
+  email: z
+    .string()
+    .email({ message: "Email must be a valid email address" })
+    .min(1, { message: "Email is required" }),
+  otp: z.string().length(4, { message: "OTP must be of length 4" }),
+});

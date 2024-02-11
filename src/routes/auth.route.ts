@@ -12,7 +12,13 @@ import {
 import {
   validateLoginBody,
   validateRegisterBody,
+  validateSendOtpBody,
+  validateVerifyOtpBody,
 } from "../middlewares/bodyValidation.middleware";
+import {
+  sendOTPController,
+  verifyOTPController,
+} from "../controllers/otp.controller";
 
 const router = Router();
 
@@ -31,5 +37,9 @@ router.get("/discord/callback", discordAuthCallbackController); // Get Discord a
 //  Github Auth Routes
 router.get("/github/url", githubAuthGetURLController); // Get Github auth url with client id and redirect url
 router.get("/github/callback", githubAuthCallbackController); // Get Github access token using code and save the user profile to DB
+
+// Email Verification Routes
+router.post("/send-otp", validateSendOtpBody, sendOTPController); // Send OTP to email for verification
+router.post("/verify-otp", validateVerifyOtpBody, verifyOTPController); // Verify OTP for email verification
 
 export const authRouter = router;

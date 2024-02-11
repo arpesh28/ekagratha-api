@@ -2,6 +2,8 @@ import { NextFunction, Request, Response } from "express";
 import {
   loginBodySchema,
   registerBodySchema,
+  sendOtpBodySchema,
+  verifyOtpBodySchema,
 } from "../config/zodSchema.config";
 
 const getZodErrors = (errors: any) => {
@@ -14,6 +16,7 @@ const getZodErrors = (errors: any) => {
   );
 };
 
+//  Registration Body
 export const validateRegisterBody = (
   req: Request,
   res: Response,
@@ -28,12 +31,41 @@ export const validateRegisterBody = (
   next();
 };
 
+//  Login Body
 export const validateLoginBody = (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   const validate = loginBodySchema.safeParse(req.body);
+
+  if (!validate.success) {
+    return res.status(400).json(getZodErrors(validate.error.errors));
+  }
+
+  next();
+};
+
+export const validateSendOtpBody = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const validate = sendOtpBodySchema.safeParse(req.body);
+
+  if (!validate.success) {
+    return res.status(400).json(getZodErrors(validate.error.errors));
+  }
+
+  next();
+};
+
+export const validateVerifyOtpBody = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const validate = verifyOtpBodySchema.safeParse(req.body);
 
   if (!validate.success) {
     return res.status(400).json(getZodErrors(validate.error.errors));
