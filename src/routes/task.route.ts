@@ -14,7 +14,7 @@ const router = Router();
 //Personal task
 router.post('/create-task', userMiddleware, validateTaskBody, createPersonalTaskController)
 router.get('/', userMiddleware, getPersonalTaskController)
-router.patch('/:taskId', userMiddleware, validateTaskBody, updatePersonalTaskController)
+router.put('/:taskId', userMiddleware, validateTaskBody, updatePersonalTaskController)
 router.delete('/:taskId', userMiddleware, deletePersonalTaskController)
 
 
