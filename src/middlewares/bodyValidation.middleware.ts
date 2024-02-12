@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import {
   loginBodySchema,
   registerBodySchema,
+  taskBodySchema,
   sendOtpBodySchema,
   verifyOtpBodySchema,
 } from "../config/zodSchema.config";
@@ -45,6 +46,19 @@ export const validateLoginBody = (
 
   next();
 };
+
+//  Personal Task body
+export const validateTaskBody = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const validate = taskBodySchema.safeParse(req.body);
+  if (!validate.success) {
+    return res.status(400).json(getZodErrors(validate.error.errors));
+  }
+  next();
+}
 
 export const validateSendOtpBody = (
   req: Request,
