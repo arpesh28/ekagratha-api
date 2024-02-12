@@ -4,3 +4,8 @@ export enum Providers {
   Github = "github",
   Discord = "discord",
 }
+export enum PriorityEnum {
+  High = 'High',
+  Medium = 'Medium',
+  Low = 'Low',
+}

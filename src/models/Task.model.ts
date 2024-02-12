@@ -1,5 +1,5 @@
 import mongoose, { Schema } from "mongoose";
-import { PriorityEnum } from "../config/constants.config";
+import { PriorityEnum } from "../typings/enum";
 
 const taskSchema = new Schema(
   {
@@ -12,8 +12,8 @@ const taskSchema = new Schema(
     description: {
       type: String,
       trim: true,
-      tags: [String],
     },
+    tags: [String],
     priority: {
       type: String,
       enum: PriorityEnum,

@@ -1,10 +1,7 @@
 import mongoose from "mongoose";
 import z from "zod";
-enum PriorityEnum {
-  High = 'High',
-  Medium = 'Medium',
-  Low = 'Low',
-}
+import { PriorityEnum } from "../typings/enum";
+
 export const registerBodySchema = z.object({
   name: z.string().min(1, { message: "Name is required" }).max(50),
   email: z
@@ -37,6 +34,7 @@ export const loginBodySchema = z.object({
 export const taskBodySchema = z.object({
   title: z.string().min(1, { message: "Title is required" }).max(100),
   description: z.string(),
+  // tags: z.array(z.string()),
   priority: z.nativeEnum(PriorityEnum),
   userId: z.custom<mongoose.Types.ObjectId>()
 })
