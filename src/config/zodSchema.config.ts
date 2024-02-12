@@ -34,7 +34,7 @@ export const loginBodySchema = z.object({
 export const taskBodySchema = z.object({
   title: z.string().min(1, { message: "Title is required" }).max(100),
   description: z.string(),
-  // tags: z.array(z.string()),
+  tags: z.array(z.string()).optional(),
   priority: z.nativeEnum(PriorityEnum),
   userId: z.custom<mongoose.Types.ObjectId>()
 })

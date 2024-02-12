@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { Task } from "../models/Task.model";
+
 // Create Personal Task
 const createPersonalTaskController = async (req: Request, res: Response) => {
     const task = await Task.create({
@@ -14,12 +15,14 @@ const createPersonalTaskController = async (req: Request, res: Response) => {
         },
     });
 };
+
 // Fetch Personal Task
 const getPersonalTaskController = async (req: Request, res: Response) => {
     const tasks = await Task.find();
     const filteredTasks = tasks.filter((x) => x?.userId.toString() === req?.body?.user?._id.toString())
     res.json({ status: 200, message: "Success", data: filteredTasks })
 }
+
 // Update Personal Task
 const updatePersonalTaskController = async (req: Request, res: Response) => {
     const taskId = req?.params?.taskId;
@@ -40,6 +43,7 @@ const updatePersonalTaskController = async (req: Request, res: Response) => {
         }
     })
 }
+
 // Delete Personal Task
 const deletePersonalTaskController = async (req: Request, res: Response) => {
     const taskId = req?.params?.taskId;
