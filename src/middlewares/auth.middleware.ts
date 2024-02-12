@@ -12,7 +12,8 @@ export default async function authMiddleware(
   if (AUTH_SECRET === undefined) {
     throw new Error("JWT_SECRET is not defined in the environment.");
   }
-  const jwtToken = req.headers.authorization;
+  const token = req.headers.authorization;
+  const jwtToken = token?.split(" ")[1];
   if (!jwtToken)
     return res.status(401).json({ message: errorMessages.UNAUTHORIZED });
 

@@ -11,7 +11,7 @@ import { validateCreateTeamBody } from "../middlewares/bodyValidation.middleware
 const router = Router();
 
 // Fetch All My Teams
-router.get("/", authMiddleware, getTeamsController);
+router.get("/", getTeamsController);
 router.post("/", validateCreateTeamBody, createTeamController);
 router.put("/:teamId", updateTeamController);
 router.delete("/:teamId", deleteTeamController);

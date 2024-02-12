@@ -2,6 +2,8 @@ export const errorMessages = {
   // Common Errors
   SOMETHING_WRONG: "Something went wrong",
   UNAUTHORIZED: "Unauthorized",
+  INVALID_ID: "Invalid ID!",
+
   //    Auth Errors
   EMAIL_REGISTERED_WITH_OTHER_PROVIDER:
     "Email address is registered with another provider",
@@ -20,4 +22,11 @@ export const errorMessages = {
   DISCORD_AUTH_FAILED: "Failed to authenticate with Discord",
   GITHUB_CODE_MISSING: "Github Authorization Code is required!",
   GITHUB_AUTH_FAILED: "Failed to authenticate with Github",
+  // Teams Errors
+  TEAM_ID_REQUIRED: "Team ID is required.",
+  TEAM_NOT_FOUND: "Team not found!",
+};
+
+export const successMessages = {
+  TEAM_DELETED: "Team deleted Successfully!",
 };
