@@ -7,7 +7,7 @@ import authMiddleware from "../middlewares/auth.middleware";
 const router = Router();
 
 router.use("/auth", authRouter);
-router.use("/personal-task", personalTaskRouter);
+router.use("/personal-task", authMiddleware, personalTaskRouter);
 router.use("/team", authMiddleware, teamRouter);
 
 export const rootRouter = router;
