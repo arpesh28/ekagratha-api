@@ -36,8 +36,8 @@ export const taskBodySchema = z.object({
   description: z.string(),
   tags: z.array(z.string()).optional(),
   priority: z.nativeEnum(PriorityEnum),
-  userId: z.custom<mongoose.Types.ObjectId>()
-})
+  userId: z.custom<mongoose.Types.ObjectId>(),
+});
 export const sendOtpBodySchema = z.object({
   email: z
     .string()
@@ -51,4 +51,10 @@ export const verifyOtpBodySchema = z.object({
     .email({ message: "Email must be a valid email address" })
     .min(1, { message: "Email is required" }),
   otp: z.string().length(4, { message: "OTP must be of length 4" }),
+});
+
+export const createTeamBodySchema = z.object({
+  name: z.string().min(3, { message: "Must be at least 3 characters long" }),
+  description: z.string().optional(),
+  icon: z.string().optional(),
 });

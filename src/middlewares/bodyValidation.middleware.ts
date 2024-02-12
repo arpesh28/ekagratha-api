@@ -5,6 +5,7 @@ import {
   taskBodySchema,
   sendOtpBodySchema,
   verifyOtpBodySchema,
+  createTeamBodySchema,
 } from "../config/zodSchema.config";
 
 const getZodErrors = (errors: any) => {
@@ -58,8 +59,9 @@ export const validateTaskBody = (
     return res.status(400).json(getZodErrors(validate.error.errors));
   }
   next();
-}
+};
 
+//  Send OTP Body
 export const validateSendOtpBody = (
   req: Request,
   res: Response,
@@ -74,12 +76,28 @@ export const validateSendOtpBody = (
   next();
 };
 
+//  Verify OTP Body
 export const validateVerifyOtpBody = (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   const validate = verifyOtpBodySchema.safeParse(req.body);
+
+  if (!validate.success) {
+    return res.status(400).json(getZodErrors(validate.error.errors));
+  }
+
+  next();
+};
+
+// Create Team Body
+export const validateCreateTeamBody = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const validate = createTeamBodySchema.safeParse(req.body);
 
   if (!validate.success) {
     return res.status(400).json(getZodErrors(validate.error.errors));

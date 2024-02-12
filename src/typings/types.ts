@@ -15,3 +15,9 @@ export type PersonalTask = {
   priority?: PriorityEnum;
   userId: mongoose.Types.ObjectId;
 };
+
+export type UserType = {
+  email: string;
+  _id: string;
+  name: string;
+};
