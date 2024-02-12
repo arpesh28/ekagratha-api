@@ -1,6 +1,7 @@
 export const errorMessages = {
   // Common Errors
   SOMETHING_WRONG: "Something went wrong",
+  UNAUTHORIZED: "Unauthorized",
   //    Auth Errors
   EMAIL_REGISTERED_WITH_OTHER_PROVIDER:
     "Email address is registered with another provider",

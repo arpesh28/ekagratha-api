@@ -35,12 +35,13 @@ const userSchema = new Schema(
       type: Boolean,
       default: false,
     },
-    personalTasks:[
-      { 
-        type: mongoose.Schema.Types.ObjectId, 
-        ref: 'Task' 
-      }
-    ]
+    personalTasks: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Task",
+      },
+    ],
+    teams: [{ type: mongoose.Schema.Types.ObjectId, ref: "Team" }],
   },
   { timestamps: true }
 );
