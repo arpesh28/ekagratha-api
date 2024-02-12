@@ -5,7 +5,7 @@ export enum Providers {
   Discord = "discord",
 }
 export enum PriorityEnum {
-  High = 'High',
-  Medium = 'Medium',
-  Low = 'Low',
+  High = 'high',
+  Medium = 'medium',
+  Low = 'low',
 }
