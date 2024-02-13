@@ -1,4 +1,5 @@
-import { Team } from "../models/Team.model";
+import { getS3ObjectUrl } from "../common/s3";
+import { Team, TeamType } from "../models/Team.model";
 
 var slugify = require("slugify");
 
@@ -59,4 +60,17 @@ export const generateIdentifier = (name: string) => {
   } else if (words.length === 1) {
     return words[0].slice(0, 3).toUpperCase();
   }
+};
+
+export const populateTeamsIconURL = async (teams: TeamType[]) => {
+  // Loop through all the teams and fill presigned url for the images
+  for (const team of teams) {
+    if (!team.icon) continue; // If there's no icon then don't change
+
+    const preSignedUrl = await getS3ObjectUrl(team.icon); // Fetch pre signed url from s3
+
+    if (preSignedUrl) team.icon = preSignedUrl; // Add presigned url to icon
+  }
+
+  return teams;
 };

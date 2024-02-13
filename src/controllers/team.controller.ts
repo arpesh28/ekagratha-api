@@ -1,20 +1,22 @@
 import { Request, Response } from "express";
 import { errorMessages, successMessages } from "../constants/messages";
 import { Team } from "../models/Team.model";
-import { UserType } from "../typings/types";
 import {
   createTeamBodySchema,
   updateTeamBodySchema,
 } from "../common/zodSchema";
 import z from "zod";
 import { generateIdentifier, generateSlug } from "../utils/helper.util";
-import mongoose from "mongoose";
+import { UserType } from "../models/User.model";
+import { getS3ObjectUrl } from "../common/s3";
 
 const getTeamsController = async (req: Request, res: Response) => {
   try {
-    const user: UserType = req.body;
+    const user: UserType = req.body.user;
 
+    // Fetch teams of the user from DB
     const teams = await Team.find({ members: user._id });
+
     if (!teams)
       return res.status(500).json({ message: errorMessages.SOMETHING_WRONG });
 
@@ -56,6 +58,12 @@ const createTeamController = async (req: Request, res: Response) => {
     // If something went wrong while creating document then throw this
     if (!team)
       return res.status(500).json({ message: errorMessages.SOMETHING_WRONG });
+
+    if (team.icon) {
+      const preSignedUrl = await getS3ObjectUrl(team.icon);
+
+      if (preSignedUrl) team.icon = preSignedUrl;
+    }
 
     return res.json({ data: team });
   } catch (error) {

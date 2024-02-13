@@ -1,5 +1,4 @@
 import { Router } from "express";
-import authMiddleware from "../middlewares/auth.middleware";
 import {
   createTeamController,
   deleteTeamController,
@@ -14,15 +13,14 @@ import { checkForObjectId } from "../middlewares/validateObjectId";
 
 const router = Router();
 
-// Fetch All My Teams
-router.get("/", getTeamsController);
-router.post("/", validateCreateTeamBody, createTeamController);
+router.get("/", getTeamsController); // Fetch user's all teams
+router.post("/", validateCreateTeamBody, createTeamController); // Create a new team
 router.put(
   "/:id",
   checkForObjectId,
   validateUpdateTeamBody,
   updateTeamController
-);
-router.delete("/:id", checkForObjectId, deleteTeamController);
+); // Update an existing team
+router.delete("/:id", checkForObjectId, deleteTeamController); // Delete an existing team
 
 export const teamRouter = router;
