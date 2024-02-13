@@ -1,5 +1,6 @@
 import bcrypt from "bcrypt";
-import { SALT_ROUNDS } from "../config/constants.config";
+
+export const SALT_ROUNDS = 10;
 
 const bcryptPassword = (password: string): string => {
   const salt = bcrypt.genSaltSync(SALT_ROUNDS);

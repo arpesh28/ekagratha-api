@@ -4,7 +4,7 @@ dotenv.config();
 import express, { Express } from "express";
 import { rootRouter } from "./routes/index.route";
 
-import connectDB from "./config/db.config";
+import connectDB from "./common/db.config";
 connectDB();
 
 const app: Express = express();

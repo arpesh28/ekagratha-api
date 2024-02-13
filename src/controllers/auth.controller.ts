@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { User } from "../models/User.model";
-import { bcryptPassword, comparePasswords } from "../config/helpers";
+import { bcryptPassword, comparePasswords } from "../common/bcrypt";
 import jwt from "jsonwebtoken";
 import axios from "axios";
 import { Providers } from "../typings/enum";

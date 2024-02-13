@@ -5,7 +5,7 @@ import { UserType } from "../typings/types";
 import {
   createTeamBodySchema,
   updateTeamBodySchema,
-} from "../config/zodSchema.config";
+} from "../common/zodSchema";
 import z from "zod";
 import { generateIdentifier, generateSlug } from "../utils/helper.util";
 import mongoose from "mongoose";
@@ -67,10 +67,10 @@ const createTeamController = async (req: Request, res: Response) => {
 
 const deleteTeamController = async (req: Request, res: Response) => {
   try {
-    const { teamId } = req.params;
+    const { id } = req.params;
 
     //   Find and delete team by id
-    const team = await Team.findByIdAndDelete(teamId);
+    const team = await Team.findByIdAndDelete(id);
 
     // if team doesn't exists then throw 404 error
     if (!team)
@@ -87,7 +87,7 @@ const deleteTeamController = async (req: Request, res: Response) => {
 
 const updateTeamController = async (req: Request, res: Response) => {
   try {
-    const { teamId } = req.params;
+    const { id } = req.params;
 
     // Create payload
     const { name, description, icon }: z.infer<typeof updateTeamBodySchema> =
@@ -95,7 +95,7 @@ const updateTeamController = async (req: Request, res: Response) => {
 
     // Find and update team
     const team = await Team.findByIdAndUpdate(
-      teamId,
+      id,
       {
         name,
         description,

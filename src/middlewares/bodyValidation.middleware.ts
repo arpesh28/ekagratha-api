@@ -7,7 +7,7 @@ import {
   verifyOtpBodySchema,
   createTeamBodySchema,
   updateTeamBodySchema,
-} from "../config/zodSchema.config";
+} from "../common/zodSchema";
 
 const getZodErrors = (errors: any) => {
   return errors?.reduce(

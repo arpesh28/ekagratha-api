@@ -10,7 +10,7 @@ import {
   validateCreateTeamBody,
   validateUpdateTeamBody,
 } from "../middlewares/bodyValidation.middleware";
-import { checkForTeamId } from "../middlewares/team.middleware";
+import { checkForObjectId } from "../middlewares/validateObjectId";
 
 const router = Router();
 
@@ -18,11 +18,11 @@ const router = Router();
 router.get("/", getTeamsController);
 router.post("/", validateCreateTeamBody, createTeamController);
 router.put(
-  "/:teamId",
-  checkForTeamId,
+  "/:id",
+  checkForObjectId,
   validateUpdateTeamBody,
   updateTeamController
 );
-router.delete("/:teamId", checkForTeamId, deleteTeamController);
+router.delete("/:id", checkForObjectId, deleteTeamController);
 
 export const teamRouter = router;
