@@ -1,4 +1,4 @@
-import mongoose, { Schema } from "mongoose";
+import mongoose, { Document, InferSchemaType, Schema } from "mongoose";
 
 const teamSchema = new Schema(
   {
@@ -37,5 +37,9 @@ const teamSchema = new Schema(
   { timestamps: true }
 );
 
+type TeamType = InferSchemaType<typeof teamSchema> & {
+  _id: Document["_id"];
+  // createdAt: Document["createdAt"];
+};
 const Team = mongoose.model("Team", teamSchema);
-export { Team };
+export { Team, TeamType };

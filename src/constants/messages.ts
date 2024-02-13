@@ -3,6 +3,7 @@ export const errorMessages = {
   SOMETHING_WRONG: "Something went wrong",
   UNAUTHORIZED: "Unauthorized",
   INVALID_ID: "Invalid ID!",
+  BAD_REQUEST: "Bad Request!",
 
   //    Auth Errors
   EMAIL_REGISTERED_WITH_OTHER_PROVIDER:

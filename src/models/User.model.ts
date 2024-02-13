@@ -1,6 +1,5 @@
-import mongoose, { Schema } from "mongoose";
+import mongoose, { Document, InferSchemaType, Schema } from "mongoose";
 import { Providers } from "../typings/enum";
-import { boolean } from "zod";
 
 const userSchema = new Schema(
   {
@@ -46,5 +45,10 @@ const userSchema = new Schema(
   { timestamps: true }
 );
 
+type UserType = InferSchemaType<typeof userSchema> & {
+  _id: Document["_id"];
+  // createdAt: Document["createdAt"];
+};
+
 const User = mongoose.model("User", userSchema);
-export { User };
+export { User, UserType };
