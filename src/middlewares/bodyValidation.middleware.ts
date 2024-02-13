@@ -8,16 +8,7 @@ import {
   createTeamBodySchema,
   updateTeamBodySchema,
 } from "../common/zodSchema";
-
-const getZodErrors = (errors: any) => {
-  return errors?.reduce(
-    (acc: any, err: { path: number[]; message: string }) => {
-      acc[err.path[0]] = err.message;
-      return acc;
-    },
-    {}
-  );
-};
+import { getZodErrors } from "../utils/helper.util";
 
 //  Registration Body
 export const validateRegisterBody = (
@@ -28,7 +19,10 @@ export const validateRegisterBody = (
   const validate = registerBodySchema.safeParse(req.body);
 
   if (!validate.success) {
-    return res.status(400).json(getZodErrors(validate.error.errors));
+    return res.status(400).json({
+      message: "Missing Inputs",
+      error: getZodErrors(validate.error.errors),
+    });
   }
 
   next();
@@ -43,7 +37,10 @@ export const validateLoginBody = (
   const validate = loginBodySchema.safeParse(req.body);
 
   if (!validate.success) {
-    return res.status(400).json(getZodErrors(validate.error.errors));
+    return res.status(400).json({
+      message: "Missing Inputs",
+      error: getZodErrors(validate.error.errors),
+    });
   }
 
   next();
@@ -57,7 +54,10 @@ export const validateTaskBody = (
 ) => {
   const validate = taskBodySchema.safeParse(req.body);
   if (!validate.success) {
-    return res.status(400).json(getZodErrors(validate.error.errors));
+    return res.status(400).json({
+      message: "Missing Inputs",
+      error: getZodErrors(validate.error.errors),
+    });
   }
   next();
 };
@@ -71,7 +71,10 @@ export const validateSendOtpBody = (
   const validate = sendOtpBodySchema.safeParse(req.body);
 
   if (!validate.success) {
-    return res.status(400).json(getZodErrors(validate.error.errors));
+    return res.status(400).json({
+      message: "Missing Inputs",
+      error: getZodErrors(validate.error.errors),
+    });
   }
 
   next();
@@ -86,7 +89,10 @@ export const validateVerifyOtpBody = (
   const validate = verifyOtpBodySchema.safeParse(req.body);
 
   if (!validate.success) {
-    return res.status(400).json(getZodErrors(validate.error.errors));
+    return res.status(400).json({
+      message: "Missing Inputs",
+      error: getZodErrors(validate.error.errors),
+    });
   }
 
   next();
@@ -101,7 +107,10 @@ export const validateCreateTeamBody = (
   const validate = createTeamBodySchema.safeParse(req.body);
 
   if (!validate.success) {
-    return res.status(400).json(getZodErrors(validate.error.errors));
+    return res.status(400).json({
+      message: "Missing Inputs",
+      error: getZodErrors(validate.error.errors),
+    });
   }
 
   next();
@@ -116,7 +125,10 @@ export const validateUpdateTeamBody = (
   const validate = updateTeamBodySchema.safeParse(req.body);
 
   if (!validate.success) {
-    return res.status(400).json(getZodErrors(validate.error.errors));
+    return res.status(400).json({
+      message: "Missing Inputs",
+      error: getZodErrors(validate.error.errors),
+    });
   }
 
   next();

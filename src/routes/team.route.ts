@@ -9,7 +9,7 @@ import {
   validateCreateTeamBody,
   validateUpdateTeamBody,
 } from "../middlewares/bodyValidation.middleware";
-import { checkForObjectId } from "../middlewares/validateObjectId";
+import { checkForObjectId } from "../middlewares/paramsValidation.middleware";
 
 const router = Router();
 

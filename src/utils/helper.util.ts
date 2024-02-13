@@ -3,6 +3,16 @@ import { Team, TeamType } from "../models/Team.model";
 
 var slugify = require("slugify");
 
+export const getZodErrors = (errors: any) => {
+  return errors?.reduce(
+    (acc: any, err: { path: number[]; message: string }) => {
+      acc[err.path[0]] = err.message;
+      return acc;
+    },
+    {}
+  );
+};
+
 export const generateSlug = async (name: string): Promise<string> => {
   let slug = slugify(name, {
     replacement: "-",

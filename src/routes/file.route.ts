@@ -1,9 +1,14 @@
 import { Router } from "express";
-import { teamsImageUploadUrl } from "../controllers/file.controller";
+import { imageUploadUrl } from "../controllers/file.controller";
+import { validateFileUploadParams } from "../middlewares/paramsValidation.middleware";
 
 const router = Router();
 
 //  Teams file Routes
-router.get("/team", teamsImageUploadUrl);
+router.get(
+  "/:category/:filename/:fileType",
+  validateFileUploadParams,
+  imageUploadUrl
+);
 
 export const fileRouter = router;

@@ -72,3 +72,15 @@ export const updateTeamBodySchema = z.object({
   description: z.string().optional(),
   icon: z.string().optional().optional(),
 });
+
+{
+  /**
+  Files Schema
+*/
+}
+
+export const imageUploadUrlParamsSchema = z.object({
+  filename: z.string(),
+  category: z.string(),
+  fileType: z.string(),
+});
