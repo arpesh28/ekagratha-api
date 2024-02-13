@@ -6,14 +6,23 @@ import {
   getTeamsController,
   updateTeamController,
 } from "../controllers/team.controller";
-import { validateCreateTeamBody } from "../middlewares/bodyValidation.middleware";
+import {
+  validateCreateTeamBody,
+  validateUpdateTeamBody,
+} from "../middlewares/bodyValidation.middleware";
+import { checkForTeamId } from "../middlewares/team.middleware";
 
 const router = Router();
 
 // Fetch All My Teams
 router.get("/", getTeamsController);
 router.post("/", validateCreateTeamBody, createTeamController);
-router.put("/:teamId", updateTeamController);
-router.delete("/:teamId", deleteTeamController);
+router.put(
+  "/:teamId",
+  checkForTeamId,
+  validateUpdateTeamBody,
+  updateTeamController
+);
+router.delete("/:teamId", checkForTeamId, deleteTeamController);
 
 export const teamRouter = router;

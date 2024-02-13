@@ -53,8 +53,22 @@ export const verifyOtpBodySchema = z.object({
   otp: z.string().length(4, { message: "OTP must be of length 4" }),
 });
 
+{
+  /**
+  Teams Schema
+*/
+}
 export const createTeamBodySchema = z.object({
   name: z.string().min(3, { message: "Must be at least 3 characters long" }),
   description: z.string().optional(),
   icon: z.string().optional(),
+});
+
+export const updateTeamBodySchema = z.object({
+  name: z
+    .string()
+    .min(3, { message: "Must be at least 3 characters long" })
+    .optional(),
+  description: z.string().optional(),
+  icon: z.string().optional().optional(),
 });

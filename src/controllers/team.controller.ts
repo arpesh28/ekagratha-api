@@ -2,7 +2,10 @@ import { Request, Response } from "express";
 import { errorMessages, successMessages } from "../constants/messages";
 import { Team } from "../models/Team.model";
 import { UserType } from "../typings/types";
-import { createTeamBodySchema } from "../config/zodSchema.config";
+import {
+  createTeamBodySchema,
+  updateTeamBodySchema,
+} from "../config/zodSchema.config";
 import z from "zod";
 import { generateIdentifier, generateSlug } from "../utils/helper.util";
 import mongoose from "mongoose";
@@ -31,14 +34,13 @@ const createTeamController = async (req: Request, res: Response) => {
       req.body;
 
     const user: UserType = req.body.user;
+    const userId = user._id;
 
     // Generate identifier
     const identifier = generateIdentifier(name);
 
     //  Generate Unique Slug
     const slug = await generateSlug(name);
-
-    console.log(name, slug);
 
     // Create new Team in the document
     const team = await Team.create({
@@ -47,7 +49,8 @@ const createTeamController = async (req: Request, res: Response) => {
       icon, //  TODO: integrate s3 links
       slug,
       identifier,
-      owner: user?._id,
+      owner: userId,
+      members: [userId],
     });
 
     // If something went wrong while creating document then throw this
@@ -65,11 +68,6 @@ const createTeamController = async (req: Request, res: Response) => {
 const deleteTeamController = async (req: Request, res: Response) => {
   try {
     const { teamId } = req.params;
-    if (!teamId)
-      return res.status(400).json({ message: errorMessages.TEAM_ID_REQUIRED });
-
-    if (!mongoose.Types.ObjectId.isValid(teamId))
-      return res.status(400).json({ message: errorMessages.INVALID_ID });
 
     //   Find and delete team by id
     const team = await Team.findByIdAndDelete(teamId);
@@ -87,7 +85,34 @@ const deleteTeamController = async (req: Request, res: Response) => {
   }
 };
 
-const updateTeamController = async (req: Request, res: Response) => {};
+const updateTeamController = async (req: Request, res: Response) => {
+  try {
+    const { teamId } = req.params;
+
+    // Create payload
+    const { name, description, icon }: z.infer<typeof updateTeamBodySchema> =
+      req.body;
+
+    // Find and update team
+    const team = await Team.findByIdAndUpdate(
+      teamId,
+      {
+        name,
+        description,
+        icon,
+      },
+      { new: true }
+    );
+
+    // If team doesn't exists then return 404
+    if (!team)
+      return res.status(404).json({ message: errorMessages.TEAM_NOT_FOUND });
+
+    res.json({ data: team });
+  } catch (error) {
+    res.status(500).json({ message: errorMessages.SOMETHING_WRONG });
+  }
+};
 
 export {
   getTeamsController,

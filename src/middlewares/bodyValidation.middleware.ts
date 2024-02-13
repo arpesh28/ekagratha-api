@@ -6,6 +6,7 @@ import {
   sendOtpBodySchema,
   verifyOtpBodySchema,
   createTeamBodySchema,
+  updateTeamBodySchema,
 } from "../config/zodSchema.config";
 
 const getZodErrors = (errors: any) => {
@@ -98,6 +99,21 @@ export const validateCreateTeamBody = (
   next: NextFunction
 ) => {
   const validate = createTeamBodySchema.safeParse(req.body);
+
+  if (!validate.success) {
+    return res.status(400).json(getZodErrors(validate.error.errors));
+  }
+
+  next();
+};
+
+// Update Team Body
+export const validateUpdateTeamBody = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const validate = updateTeamBodySchema.safeParse(req.body);
 
   if (!validate.success) {
     return res.status(400).json(getZodErrors(validate.error.errors));
