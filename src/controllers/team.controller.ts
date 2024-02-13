@@ -6,16 +6,23 @@ import {
   updateTeamBodySchema,
 } from "../common/zodSchema";
 import z from "zod";
-import { generateIdentifier, generateSlug } from "../utils/helper.util";
+import {
+  generateIdentifier,
+  generateSlug,
+  populateTeamsIconURL,
+} from "../utils/helper.util";
 import { UserType } from "../models/User.model";
-import { getS3ObjectUrl } from "../common/s3";
+import { deleteS3Object, getS3ObjectUrl } from "../common/s3";
 
 const getTeamsController = async (req: Request, res: Response) => {
   try {
     const user: UserType = req.body.user;
 
     // Fetch teams of the user from DB
-    const teams = await Team.find({ members: user._id });
+    const teamsBasic = await Team.find({ members: user._id });
+
+    // Populate icon url
+    const teams = await populateTeamsIconURL(teamsBasic);
 
     if (!teams)
       return res.status(500).json({ message: errorMessages.SOMETHING_WRONG });
@@ -84,6 +91,8 @@ const deleteTeamController = async (req: Request, res: Response) => {
     if (!team)
       return res.status(404).json({ message: errorMessages.TEAM_NOT_FOUND });
 
+    if (team.icon) await deleteS3Object("team/" + team.icon);
+
     res.json({ message: successMessages.TEAM_DELETED, data: team });
   } catch (error) {
     console.log(error);
@@ -115,6 +124,12 @@ const updateTeamController = async (req: Request, res: Response) => {
     // If team doesn't exists then return 404
     if (!team)
       return res.status(404).json({ message: errorMessages.TEAM_NOT_FOUND });
+
+    if (team.icon) {
+      const preSignedUrl = await getS3ObjectUrl(team.icon);
+
+      if (preSignedUrl) team.icon = preSignedUrl;
+    }
 
     res.json({ data: team });
   } catch (error) {

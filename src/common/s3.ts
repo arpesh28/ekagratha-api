@@ -1,4 +1,5 @@
 import {
+  DeleteObjectCommand,
   GetObjectCommand,
   PutObjectCommand,
   S3Client,
@@ -22,7 +23,7 @@ const s3Client = new S3Client({
 const getS3ObjectUrl = async (key: string) => {
   const command = new GetObjectCommand({
     Bucket: bucket,
-    Key: key,
+    Key: `uploads/${key}`,
   });
 
   const url = await getSignedUrl(s3Client, command);
@@ -42,4 +43,15 @@ const uploadS3ObjectUrl = async (filename: string, contentType: string) => {
   return url;
 };
 
-export { getS3ObjectUrl, uploadS3ObjectUrl };
+const deleteS3Object = async (key: string) => {
+  const command = new DeleteObjectCommand({
+    Bucket: bucket,
+    Key: `uploads/${key}`,
+  });
+
+  const data = await s3Client.send(command);
+
+  return data;
+};
+
+export { getS3ObjectUrl, uploadS3ObjectUrl, deleteS3Object };
