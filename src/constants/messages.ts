@@ -25,8 +25,18 @@ export const errorMessages = {
   // Teams Errors
   TEAM_ID_REQUIRED: "Team ID is required.",
   TEAM_NOT_FOUND: "Team not found!",
+  // Personal Task 
+  TASK_ID_REQUIRED: "Task ID is required.",
+  TASK_NOT_FOUND: "Task not found!",
+  TASK_ID_INCORRECT: "Task ID is Incorrect!",
+  TASK_ALREADY_DELETED: "Task already deleted",
 };
 
 export const successMessages = {
   TEAM_DELETED: "Team deleted Successfully!",
+  // Personal Task 
+  TASK_DELETED: "Task deleted Successfully!",
+  TASK_FETCHED: "Task Fetched Successfully",
+  TASK_UPDATED: "Task Updated Successfully",
+  TASK_ADDED: "Task Added Successfully"
 };

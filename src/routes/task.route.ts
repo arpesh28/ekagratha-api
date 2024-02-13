@@ -9,13 +9,14 @@ import {
   validateTaskBody
 } from "../middlewares/bodyValidation.middleware";
 import userMiddleware from "../middlewares/auth.middleware";
+import taskIDMiddleware from "../middlewares/task.middleware";
 
 const router = Router();
 //Personal task
-router.post('/create-task', userMiddleware, validateTaskBody, createPersonalTaskController)
-router.get('/', userMiddleware, getPersonalTaskController)
-router.put('/:taskId', userMiddleware, validateTaskBody, updatePersonalTaskController)
-router.delete('/:taskId', userMiddleware, deletePersonalTaskController)
+router.post('/create-task', validateTaskBody, createPersonalTaskController)
+router.get('/', getPersonalTaskController)
+router.put('/:taskId', taskIDMiddleware, validateTaskBody, updatePersonalTaskController)
+router.delete('/:taskId', taskIDMiddleware, deletePersonalTaskController)
 
 
 export const personalTaskRouter = router;
