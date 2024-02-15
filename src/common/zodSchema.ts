@@ -79,6 +79,13 @@ export const inviteTeamMemberBodySchema = z.object({
     .email({ message: "Email must be a valid email address" })
     .min(1, { message: "Email is required" }),
 });
+export const acceptInvitationBodySchema = z.object({
+  email: z
+    .string()
+    .email({ message: "Email must be a valid email address" })
+    .min(1, { message: "Email is required" }),
+  inviteToken: z.string(),
+});
 
 {
   /**

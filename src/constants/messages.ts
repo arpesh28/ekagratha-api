@@ -4,7 +4,7 @@ export const errorMessages = {
   UNAUTHORIZED: "Unauthorized",
   INVALID_ID: "Invalid ID!",
   BAD_REQUEST: "Bad Request!",
-
+  USER_NOT_FOUND: "User not found!",
   //    Auth Errors
   EMAIL_REGISTERED_WITH_OTHER_PROVIDER:
     "Email address is registered with another provider",
@@ -27,6 +27,7 @@ export const errorMessages = {
   TEAM_ID_REQUIRED: "Team ID is required.",
   TEAM_NOT_FOUND: "Team not found!",
   ALREADY_MEMBER: "User is already a member of the team.",
+  INVALID_INVITATION: "Invalid invitation url",
   // Personal Task
   TASK_ID_REQUIRED: "Task ID is required.",
   TASK_NOT_FOUND: "Task not found!",

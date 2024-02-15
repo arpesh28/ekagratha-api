@@ -32,5 +32,11 @@ router.post(
   validateInviteTeamMemberBody,
   inviteTeamMember
 );
+router.post(
+  "/accept-invitation/:id",
+  checkForObjectId,
+  validateInviteTeamMemberBody,
+  inviteTeamMember
+);
 
 export const teamRouter = router;

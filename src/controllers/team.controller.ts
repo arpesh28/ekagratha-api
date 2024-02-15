@@ -11,10 +11,12 @@ import {
   generateSlug,
   populateTeamsIconURL,
 } from "../utils/helper.util";
-import { UserType } from "../models/User.model";
+import { User, UserType } from "../models/User.model";
 import { deleteS3Object, getS3ObjectUrl } from "../common/s3";
 import { InviteToken } from "../models/Invite.model";
 import { randomBytes } from "crypto";
+import { sendTeamInvitationEmail } from "../utils/mailSender.util";
+import { error } from "console";
 
 const getTeamsController = async (req: Request, res: Response) => {
   try {
@@ -168,7 +170,50 @@ const inviteTeamMember = async (req: Request, res: Response) => {
       process.env.TEAM_INVITE_CALLBACK +
       `${teamId}?email=${email}&invite-token=${invite?.inviteToken}`;
 
+    await sendTeamInvitationEmail(email, team.name, invitationUrl);
+
     res.json({ data: invitationUrl });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: errorMessages.SOMETHING_WRONG, error });
+  }
+};
+
+// Accept Team Invitation
+const acceptTeamInvitation = async (req: Request, res: Response) => {
+  try {
+    const { id: teamId } = req.params;
+    const { email, inviteToken } = req.body;
+
+    // 1. Validate teamId
+    const team = await Team.findById(teamId);
+    if (!team)
+      return res.status(404).json({ message: errorMessages.TEAM_NOT_FOUND });
+
+    const user = await User.findOne({ email });
+    if (!user)
+      return res.status(404).json({ message: errorMessages.USER_NOT_FOUND });
+
+    // 2. Check if team member already exists
+    const isMember = await Team.find({ email });
+    if (isMember)
+      return res.status(400).json({ message: errorMessages.ALREADY_MEMBER });
+
+    // 3. verify invite token
+    const invite = await InviteToken.findOne(
+      { email, inviteToken },
+      { used: true }
+    );
+
+    if (!invite)
+      return res
+        .status(404)
+        .json({ message: errorMessages.INVALID_INVITATION });
+
+    // const newTeam = team.members.push();
+
+    res.json({ data: "" });
   } catch (error) {
     return res
       .status(500)
@@ -182,4 +227,5 @@ export {
   deleteTeamController,
   updateTeamController,
   inviteTeamMember,
+  acceptTeamInvitation,
 };

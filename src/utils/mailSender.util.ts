@@ -25,4 +25,23 @@ const mailSender = async (email: string, title: string, body: string) => {
   }
 };
 
-export { mailSender };
+async function sendTeamInvitationEmail(
+  email: string,
+  teamName: string,
+  url: string
+) {
+  try {
+    const mailResponse = await mailSender(
+      email,
+      `You are invited to join team ${teamName}`,
+      `<h1>Please click on the link below to join</h1>
+       <a href="${url}" target="_blank">${url}</a>`
+    );
+    console.log("Email sent successfully: ", mailResponse);
+  } catch (error) {
+    console.log("Error occurred while sending email: ", error);
+    throw error;
+  }
+}
+
+export { mailSender, sendTeamInvitationEmail };

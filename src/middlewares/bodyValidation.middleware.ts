@@ -8,6 +8,7 @@ import {
   createTeamBodySchema,
   updateTeamBodySchema,
   inviteTeamMemberBodySchema,
+  acceptInvitationBodySchema,
 } from "../common/zodSchema";
 import { getZodErrors } from "../utils/helper.util";
 
@@ -145,6 +146,22 @@ export const validateInviteTeamMemberBody = (
   if (!validate.success) {
     return res.status(400).json({
       message: "Email Address is required",
+    });
+  }
+
+  next();
+};
+
+export const validateAcceptInvitationBody = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const validate = acceptInvitationBodySchema.safeParse(req.body);
+
+  if (!validate.success) {
+    return res.status(400).json({
+      message: "Missing Fields",
     });
   }
 
