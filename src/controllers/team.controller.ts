@@ -13,6 +13,8 @@ import {
 } from "../utils/helper.util";
 import { UserType } from "../models/User.model";
 import { deleteS3Object, getS3ObjectUrl } from "../common/s3";
+import { InviteToken } from "../models/Invite.model";
+import { randomBytes } from "crypto";
 
 const getTeamsController = async (req: Request, res: Response) => {
   try {
@@ -137,9 +139,47 @@ const updateTeamController = async (req: Request, res: Response) => {
   }
 };
 
+// Invite Team Member
+const inviteTeamMember = async (req: Request, res: Response) => {
+  try {
+    const { id: teamId } = req.params;
+    const { email } = req.body;
+
+    // 1. Validate teamId
+    const team = await Team.findById(teamId);
+    if (!team)
+      return res.status(404).json({ message: errorMessages.TEAM_NOT_FOUND });
+
+    // 2. Check if team member already exists
+    const isMember = await Team.findOne({ email });
+    if (isMember)
+      return res.status(400).json({ message: errorMessages.ALREADY_MEMBER });
+
+    // 3. Generate unique invite token
+    const inviteToken = randomBytes(64).toString("hex");
+    console.log("Checkpoint", inviteToken);
+    const invite = await InviteToken.findOneAndUpdate(
+      { email },
+      { email, inviteToken, teamId, used: false },
+      { upsert: true, new: true }
+    );
+
+    const invitationUrl =
+      process.env.TEAM_INVITE_CALLBACK +
+      `${teamId}?email=${email}&invite-token=${invite?.inviteToken}`;
+
+    res.json({ data: invitationUrl });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: errorMessages.SOMETHING_WRONG, error });
+  }
+};
+
 export {
   getTeamsController,
   createTeamController,
   deleteTeamController,
   updateTeamController,
+  inviteTeamMember,
 };

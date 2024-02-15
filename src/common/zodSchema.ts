@@ -73,6 +73,13 @@ export const updateTeamBodySchema = z.object({
   icon: z.string().optional().optional(),
 });
 
+export const inviteTeamMemberBodySchema = z.object({
+  email: z
+    .string()
+    .email({ message: "Email must be a valid email address" })
+    .min(1, { message: "Email is required" }),
+});
+
 {
   /**
   Files Schema

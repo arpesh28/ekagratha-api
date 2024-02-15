@@ -3,10 +3,12 @@ import {
   createTeamController,
   deleteTeamController,
   getTeamsController,
+  inviteTeamMember,
   updateTeamController,
 } from "../controllers/team.controller";
 import {
   validateCreateTeamBody,
+  validateInviteTeamMemberBody,
   validateUpdateTeamBody,
 } from "../middlewares/bodyValidation.middleware";
 import { checkForObjectId } from "../middlewares/paramsValidation.middleware";
@@ -22,5 +24,13 @@ router.put(
   updateTeamController
 ); // Update an existing team
 router.delete("/:id", checkForObjectId, deleteTeamController); // Delete an existing team
+
+// Team Management
+router.post(
+  "/invite/:id",
+  checkForObjectId,
+  validateInviteTeamMemberBody,
+  inviteTeamMember
+);
 
 export const teamRouter = router;
