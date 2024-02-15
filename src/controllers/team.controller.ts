@@ -11,15 +11,22 @@ import {
   generateSlug,
   populateTeamsIconURL,
 } from "../utils/helper.util";
-import { UserType } from "../models/User.model";
+import { User, UserType } from "../models/User.model";
 import { deleteS3Object, getS3ObjectUrl } from "../common/s3";
+import { InviteToken } from "../models/Invite.model";
+import { randomBytes } from "crypto";
+import { sendTeamInvitationEmail } from "../utils/mailSender.util";
+import { error } from "console";
+import mongoose from "mongoose";
 
 const getTeamsController = async (req: Request, res: Response) => {
   try {
     const user: UserType = req.body.user;
 
     // Fetch teams of the user from DB
-    const teamsBasic = await Team.find({ members: user._id });
+    const teamsBasic = await Team.find({ members: user._id }).populate(
+      "members"
+    );
 
     // Populate icon url
     const teams = await populateTeamsIconURL(teamsBasic);
@@ -137,9 +144,108 @@ const updateTeamController = async (req: Request, res: Response) => {
   }
 };
 
+// Invite Team Member
+const inviteTeamMember = async (req: Request, res: Response) => {
+  try {
+    const { id: teamId } = req.params;
+    const { email } = req.body;
+
+    // 1. Validate teamId
+    const team = await Team.findById(teamId);
+    if (!team)
+      return res.status(404).json({ message: errorMessages.TEAM_NOT_FOUND });
+
+    // 2. Check if email is a user
+    const user = await User.findOne({ email });
+
+    // 3. Check if team member already exists
+    if (user) {
+      const isMember = await Team.findOne({
+        _id: teamId,
+        members: { $elemMatch: { $eq: user._id } },
+      });
+      if (isMember)
+        return res.status(400).json({ message: errorMessages.ALREADY_MEMBER });
+    }
+
+    // 4. Generate unique invite token
+    const inviteToken = randomBytes(64).toString("hex");
+    const invite = await InviteToken.findOneAndUpdate(
+      { email },
+      { email, inviteToken, teamId, used: false },
+      { upsert: true, new: true }
+    );
+
+    // 5. Create Invitation URL
+    const invitationUrl =
+      process.env.TEAM_INVITE_CALLBACK +
+      `${teamId}?email=${email}&invite-token=${invite?.inviteToken}`;
+
+    // 6. Send invitation mail with the invitation url
+    await sendTeamInvitationEmail(email, team.name, invitationUrl);
+
+    res.json({ data: invitationUrl });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: errorMessages.SOMETHING_WRONG, error });
+  }
+};
+
+// Accept Team Invitation
+const acceptTeamInvitation = async (req: Request, res: Response) => {
+  try {
+    const { id: teamId } = req.params;
+    const { email, inviteToken } = req.body;
+
+    // 1. Validate teamId
+    const team = await Team.findById(teamId);
+    if (!team)
+      return res.status(404).json({ message: errorMessages.TEAM_NOT_FOUND });
+
+    // 2. Check if user exists
+    const user = await User.findOne({ email });
+    if (!user)
+      return res.status(404).json({ message: errorMessages.USER_NOT_FOUND });
+
+    // 3. Check if is already a team member
+    const isMember = await Team.findOne({
+      _id: teamId,
+      members: { $elemMatch: { $eq: user._id } },
+    });
+    console.log(isMember);
+    if (isMember)
+      return res.status(400).json({ message: errorMessages.ALREADY_MEMBER });
+
+    // 4. verify invite token
+    const invite = await InviteToken.findOne(
+      { email, inviteToken },
+      { used: true }
+    );
+    if (!invite)
+      return res
+        .status(404)
+        .json({ message: errorMessages.INVALID_INVITATION });
+
+    const updatedTeam = await Team.findOneAndUpdate(
+      { _id: teamId },
+      { $push: { members: user._id } },
+      { new: true }
+    );
+
+    res.json({ data: updatedTeam });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: errorMessages.SOMETHING_WRONG, error });
+  }
+};
+
 export {
   getTeamsController,
   createTeamController,
   deleteTeamController,
   updateTeamController,
+  inviteTeamMember,
+  acceptTeamInvitation,
 };
