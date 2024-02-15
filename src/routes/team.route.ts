@@ -1,5 +1,6 @@
 import { Router } from "express";
 import {
+  acceptTeamInvitation,
   createTeamController,
   deleteTeamController,
   getTeamsController,
@@ -36,7 +37,7 @@ router.post(
   "/accept-invitation/:id",
   checkForObjectId,
   validateInviteTeamMemberBody,
-  inviteTeamMember
+  acceptTeamInvitation
 );
 
 export const teamRouter = router;
