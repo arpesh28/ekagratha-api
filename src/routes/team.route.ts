@@ -3,6 +3,7 @@ import {
   acceptTeamInvitation,
   createTeamController,
   deleteTeamController,
+  getAllTeamMembers,
   getTeamsController,
   inviteTeamMember,
   removeTeamMember,
@@ -17,7 +18,7 @@ import {
   checkForObjectId,
   checkRemoveTeamMemberObjectId,
 } from "../middlewares/paramsValidation.middleware";
-import isTeamOwner from "../middlewares/team.middleware";
+import { isTeamOwner, isTeamMember } from "../middlewares/team.middleware";
 
 const router = Router();
 
@@ -52,5 +53,7 @@ router.delete(
   isTeamOwner,
   removeTeamMember
 ); // remove a team member
+
+router.get("/members/:id", checkForObjectId, isTeamMember, getAllTeamMembers); // remove a team member
 
 export const teamRouter = router;
