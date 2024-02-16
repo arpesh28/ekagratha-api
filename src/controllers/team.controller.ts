@@ -145,6 +145,26 @@ const updateTeamController = async (req: Request, res: Response) => {
   }
 };
 
+// Get all team members
+const getAllTeamMembers = async (req: Request, res: Response) => {
+  try {
+    const reqTeam: TeamType = req.body.team;
+
+    const team = await Team.findOne({ _id: reqTeam }).populate("members");
+
+    if (!team)
+      return res.status(404).json({ message: errorMessages.TEAM_NOT_FOUND });
+
+    res.json({
+      data: team.members,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: errorMessages.SOMETHING_WRONG,
+    });
+  }
+};
+
 // Invite Team Member
 const inviteTeamMember = async (req: Request, res: Response) => {
   try {
@@ -279,4 +299,5 @@ export {
   inviteTeamMember,
   acceptTeamInvitation,
   removeTeamMember,
+  getAllTeamMembers,
 };
