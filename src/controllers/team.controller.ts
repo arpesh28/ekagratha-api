@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { errorMessages, successMessages } from "../constants/messages";
-import { Team } from "../models/Team.model";
+import { Team, TeamType } from "../models/Team.model";
 import {
   createTeamBodySchema,
   updateTeamBodySchema,
@@ -24,9 +24,10 @@ const getTeamsController = async (req: Request, res: Response) => {
     const user: UserType = req.body.user;
 
     // Fetch teams of the user from DB
-    const teamsBasic = await Team.find({ members: user._id }).populate(
-      "members"
-    );
+    const teamsBasic = await Team.find({ members: user._id }).populate([
+      "members",
+      "owner",
+    ]);
 
     // Populate icon url
     const teams = await populateTeamsIconURL(teamsBasic);
@@ -148,17 +149,12 @@ const updateTeamController = async (req: Request, res: Response) => {
 const inviteTeamMember = async (req: Request, res: Response) => {
   try {
     const { id: teamId } = req.params;
-    const { email } = req.body;
+    const { email, team } = req.body;
 
-    // 1. Validate teamId
-    const team = await Team.findById(teamId);
-    if (!team)
-      return res.status(404).json({ message: errorMessages.TEAM_NOT_FOUND });
-
-    // 2. Check if email is a user
+    // 1. Check if email is a user
     const user = await User.findOne({ email });
 
-    // 3. Check if team member already exists
+    // 2. Check if team member already exists
     if (user) {
       const isMember = await Team.findOne({
         _id: teamId,
@@ -168,7 +164,7 @@ const inviteTeamMember = async (req: Request, res: Response) => {
         return res.status(400).json({ message: errorMessages.ALREADY_MEMBER });
     }
 
-    // 4. Generate unique invite token
+    // 3. Generate unique invite token
     const inviteToken = randomBytes(64).toString("hex");
     const invite = await InviteToken.findOneAndUpdate(
       { email },
@@ -176,12 +172,12 @@ const inviteTeamMember = async (req: Request, res: Response) => {
       { upsert: true, new: true }
     );
 
-    // 5. Create Invitation URL
+    // 4. Create Invitation URL
     const invitationUrl =
       process.env.TEAM_INVITE_CALLBACK +
       `${teamId}?email=${email}&invite-token=${invite?.inviteToken}`;
 
-    // 6. Send invitation mail with the invitation url
+    // 5. Send invitation mail with the invitation url
     await sendTeamInvitationEmail(email, team.name, invitationUrl);
 
     res.json({ data: invitationUrl });
@@ -241,6 +237,40 @@ const acceptTeamInvitation = async (req: Request, res: Response) => {
   }
 };
 
+// Invite Team Member
+const removeTeamMember = async (req: Request, res: Response) => {
+  try {
+    const { id: teamId, userId } = req.params;
+    const team: TeamType = req.body.team;
+
+    // Convert string to objectId
+    const userObjectId = new mongoose.Types.ObjectId(userId);
+    const teamObjectId = new mongoose.Types.ObjectId(teamId);
+
+    // Check if user exists in the members array
+    const isMember = team.members.indexOf(userObjectId);
+    if (isMember === -1)
+      return res.status(404).json({ message: errorMessages.NOT_MEMBER });
+
+    // Check if the user to be removed is the owner
+    if (userObjectId.equals(team.owner))
+      return res
+        .status(400)
+        .json({ message: errorMessages.OWNER_CANNOT_BE_REMOVED });
+
+    // Remove the user from the members array
+    const newTeam = await Team.findByIdAndUpdate(teamObjectId, {
+      $pull: { members: userObjectId },
+    });
+
+    return res.json({ data: newTeam });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: errorMessages.SOMETHING_WRONG, error });
+  }
+};
+
 export {
   getTeamsController,
   createTeamController,
@@ -248,4 +278,5 @@ export {
   updateTeamController,
   inviteTeamMember,
   acceptTeamInvitation,
+  removeTeamMember,
 };

@@ -28,6 +28,11 @@ export const errorMessages = {
   TEAM_NOT_FOUND: "Team not found!",
   ALREADY_MEMBER: "User is already a member of the team.",
   INVALID_INVITATION: "Invalid invitation url",
+  NOT_TEAM_OWNER: "Only team owners can perform this action.",
+  NOT_MEMBER: "User is not a member of this team.",
+  OWNER_CANNOT_BE_REMOVED: "Owner cannot be removed from the team.",
+  INVALID_TEAM_ID: "Invalid Team ID",
+  INVALID_MEMBER_ID: "Invalid Member ID",
   // Personal Task
   TASK_ID_REQUIRED: "Task ID is required.",
   TASK_NOT_FOUND: "Task not found!",
