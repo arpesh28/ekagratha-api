@@ -87,7 +87,7 @@ export const verifyTempUserSchema = z.object({
     .refine((value) => /[!@#$%^&*(),.?":{}|<>]/.test(value), {
       message: "Password must contain at least one special character.",
     }),
-  tempToken: z.string()
+  resetPasswordToken: z.string()
 })
 
 {

@@ -94,16 +94,16 @@ const verifyResetPasswordOTPController = async (req: Request, res: Response) => 
             });
         }
         // Generate temporary token
-        const tempToken = crypto.randomBytes(32).toString("hex");
-        const tempTokenExpiration = new Date(Date.now() + 24 * 60 * 60 * 1000); // Token expires after 24 hours
+        const resetPasswordToken = crypto.randomBytes(32).toString("hex");
+        const resetPasswordTokenExpiration = new Date(Date.now() + 24 * 60 * 60 * 1000); // Token expires after 24 hours
         await ResetPasswordToken.create(
             {
                 email: req.body.email,
-                tempToken: tempToken,
+                resetPasswordToken: resetPasswordToken,
             }
         )
         await OTP.findOneAndDelete({ email: req.body.email })
-        res.status(200).json({ message: successMessages.OTP_VERIFIED, tempToken });
+        res.status(200).json({ message: successMessages.OTP_VERIFIED, resetPasswordToken });
 
     } catch (error: any) {
         return res
@@ -113,8 +113,8 @@ const verifyResetPasswordOTPController = async (req: Request, res: Response) => 
 };
 const newPasswordController = async (req: Request, res: Response) => {
     try {
-        const { oldPassword, newPassword, tempToken } = req.body;
-        const tempUser = await ResetPasswordToken.findOne({ tempToken });
+        const { oldPassword, newPassword, resetPasswordToken } = req.body;
+        const tempUser = await ResetPasswordToken.findOne({ resetPasswordToken });
         if (!tempUser) {
             return res.status(404).json({
                 message: errorMessages.USER_NOT_FOUND,
@@ -142,7 +142,7 @@ const newPasswordController = async (req: Request, res: Response) => {
             { email: tempUser?.email },
             { password: newPassHash }
         )
-        await ResetPasswordToken.findOneAndDelete({ tempToken })
+        await ResetPasswordToken.findOneAndDelete({ resetPasswordToken })
         res.status(200).json({ message: successMessages.PASSWORD_CHANGED, newPassHash });
     } catch (error: any) {
         return res

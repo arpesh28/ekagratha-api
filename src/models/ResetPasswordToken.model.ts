@@ -10,7 +10,7 @@ const ResetPasswordTokenSchema = new Schema(
             trim: true,
             lowercase: true,
         },
-        tempToken: {
+        resetPasswordToken: {
             type: String,
             required: true,
         }
