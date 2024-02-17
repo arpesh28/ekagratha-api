@@ -31,6 +31,13 @@ export const loginBodySchema = z.object({
   password: z.string(),
 });
 
+export const resetPasswordBodySchema = z.object({
+  email: z
+    .string()
+    .email({ message: "Email must be a valid email address" })
+    .min(1, { message: "Email is required" })
+});
+
 export const taskBodySchema = z.object({
   title: z.string().min(1, { message: "Title is required" }).max(100),
   description: z.string(),
@@ -52,6 +59,36 @@ export const verifyOtpBodySchema = z.object({
     .min(1, { message: "Email is required" }),
   otp: z.string().length(4, { message: "OTP must be of length 4" }),
 });
+
+export const verifyTempUserSchema = z.object({
+  oldPassword: z
+    .string()
+    .min(8, { message: "Password must be at least 8 characters long" })
+    .max(16)
+    .refine((value) => /[a-zA-Z]/.test(value), {
+      message: "Password must contain at least one letter",
+    })
+    .refine((value) => /\d/.test(value), {
+      message: "Password must contain at least one number",
+    })
+    .refine((value) => /[!@#$%^&*(),.?":{}|<>]/.test(value), {
+      message: "Password must contain at least one special character.",
+    }),
+  newPassword: z
+    .string()
+    .min(8, { message: "Password must be at least 8 characters long" })
+    .max(16)
+    .refine((value) => /[a-zA-Z]/.test(value), {
+      message: "Password must contain at least one letter",
+    })
+    .refine((value) => /\d/.test(value), {
+      message: "Password must contain at least one number",
+    })
+    .refine((value) => /[!@#$%^&*(),.?":{}|<>]/.test(value), {
+      message: "Password must contain at least one special character.",
+    }),
+  tempToken: z.string()
+})
 
 {
   /**

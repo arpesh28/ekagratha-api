@@ -3,7 +3,7 @@ import { OTP } from "../models/Otp.model";
 import { Request, Response } from "express";
 import { User } from "../models/User.model";
 import jwt from "jsonwebtoken";
-import { errorMessages } from "../constants/messages";
+import { errorMessages, successMessages } from "../constants/messages";
 
 const sendOTPController = async (req: Request, res: Response) => {
   try {
@@ -58,7 +58,7 @@ const sendOTPController = async (req: Request, res: Response) => {
       return res.status(500).json({ message: errorMessages.SOMETHING_WRONG });
 
     res.json({
-      message: "OTP send successfully",
+      message: successMessages.OTP_SENT
     });
   } catch (error: any) {
     console.log(error?.message);

@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { User } from "../models/User.model";
 import { bcryptPassword, comparePasswords } from "../common/bcrypt";
 import jwt from "jsonwebtoken";
@@ -107,7 +107,7 @@ const googleAuthCallbackController = async (req: Request, res: Response) => {
     return res.status(400).json({ message: errorMessages.GOOGLE_CODE_MISSING });
 
   try {
-    // Exchange code for token from google
+    // Ex code for token from google
     const tokenResponse = await axios.post(
       "https://oauth2.googleapis.com/token",
       {
@@ -198,7 +198,6 @@ const googleAuthCallbackController = async (req: Request, res: Response) => {
       },
     });
   } catch (error: any) {
-    console.error("Error exchanging code for token:", error?.response?.data);
     res.status(500).json({ message: errorMessages.GOOGLE_AUTH_FAILED });
   }
 };
@@ -321,7 +320,6 @@ const discordAuthCallbackController = async (req: Request, res: Response) => {
       },
     });
   } catch (error: any) {
-    console.error("Error exchanging code for token:", error?.response?.data);
     res.status(500).json({ message: errorMessages.DISCORD_AUTH_FAILED });
   }
 };
@@ -452,6 +450,35 @@ const githubAuthCallbackController = async (req: Request, res: Response) => {
   }
 };
 
+//Reset Password
+const resetPasswordController = async (req: Request, res: Response,
+  next: NextFunction
+) => {
+  try {
+    const user = await User.findOne({ email: req.body.email });
+
+    if (!user)
+      return res.status(401).json({ message: errorMessages.EMAIL_NOT_FOUND });
+
+    if (user.provider !== Providers.Email)
+      return res
+        .status(400)
+        .json({ message: errorMessages.EMAIL_REGISTERED_WITH_OTHER_PROVIDER });
+
+    if (!user.isVerified)
+      return res
+        .status(403)
+        .json({ message: errorMessages.EMAIL_NOT_VERIFIED });
+
+    next();
+
+
+  } catch (err) {
+    res.status(500).json({ message: errorMessages.SOMETHING_WRONG });
+  }
+
+}
+
 export {
   // Email
   registerController,
@@ -465,4 +492,6 @@ export {
   // Github
   githubAuthGetURLController,
   githubAuthCallbackController,
+  //Reset Password
+  resetPasswordController
 };
