@@ -8,17 +8,21 @@ import {
   googleAuthGetURLController,
   loginController,
   registerController,
+  resetPasswordController,
 } from "../controllers/auth.controller";
 import {
   validateLoginBody,
   validateRegisterBody,
+  validateResetPasswordBody,
   validateSendOtpBody,
+  validateTempUserBody,
   validateVerifyOtpBody,
 } from "../middlewares/bodyValidation.middleware";
 import {
   sendOTPController,
   verifyOTPController,
 } from "../controllers/otp.controller";
+import { newPasswordController, sendResetPasswordOTPController, verifyResetPasswordOTPController } from "../controllers/resetPassword.controller";
 
 const router = Router();
 
@@ -41,5 +45,10 @@ router.get("/github/callback", githubAuthCallbackController); // Get Github acce
 // Email Verification Routes
 router.post("/send-otp", validateSendOtpBody, sendOTPController); // Send OTP to email for verification
 router.post("/verify-otp", validateVerifyOtpBody, verifyOTPController); // Verify OTP for email verification
+
+//Password Verification
+router.post("/reset-password/send-otp", validateResetPasswordBody, resetPasswordController, validateSendOtpBody, sendResetPasswordOTPController)
+router.post("/reset-password/verify-otp", validateVerifyOtpBody, verifyResetPasswordOTPController)
+router.post("/reset-password/new-password", validateTempUserBody, newPasswordController)
 
 export const authRouter = router;

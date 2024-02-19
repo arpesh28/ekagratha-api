@@ -16,6 +16,9 @@ export const errorMessages = {
   OTP_EXPIRED: "OTP is expired!",
   NO_ACTIVE_OTP: "No active otp has been sent to this email!",
   INVALID_OTP: "Invalid OTP!",
+  OTP_ALREADY_SENT: "An OTP has already been sent recently. Please check your email.",
+
+
   INVALID_CREDENTIALS: "Email/Password is invalid!",
   GOOGLE_CODE_MISSING: "Google Authorization Code is required!",
   GOOGLE_AUTH_FAILED: "Failed to authenticate with Google",
@@ -47,4 +50,7 @@ export const successMessages = {
   TASK_FETCHED: "Task Fetched Successfully",
   TASK_UPDATED: "Task Updated Successfully",
   TASK_ADDED: "Task Added Successfully",
+  OTP_VERIFIED: "OTP has been Verified Successfully",
+  OTP_SENT: "OTP has been Sent Successfully",
+  PASSWORD_CHANGED: "Password verified changed",
 };
