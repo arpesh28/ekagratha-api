@@ -1,5 +1,5 @@
 import mongoose, { Schema } from "mongoose";
-import { PriorityEnum } from "../typings/enum";
+import { PriorityEnum, StatusEnum } from "../typings/enum";
 
 const taskSchema = new Schema(
   {
@@ -17,11 +17,18 @@ const taskSchema = new Schema(
     priority: {
       type: String,
       enum: PriorityEnum,
-      default: 'Medium'
+      default: 'Medium',
+      required: true,
+    },
+    status: {
+      type: String,
+      enum: StatusEnum,
+      default: 'Todo',
+      required: true,
     },
     userId: {
       type: mongoose.Schema.Types.ObjectId,
-      required: true,
+      // required: true,
       ref: 'User'
     }
   },
