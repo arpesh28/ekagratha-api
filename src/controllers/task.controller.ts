@@ -10,7 +10,8 @@ const createPersonalTaskController = async (req: Request, res: Response) => {
             title: req.body.title,
             description: req.body.description,
             priority: req.body.priority,
-            userId: req.body.user._id
+            userId: req.body.user._id,
+            status: req.body.status
         });
 
         // Update user document to add task ID to personalTasks array
@@ -22,10 +23,17 @@ const createPersonalTaskController = async (req: Request, res: Response) => {
         return res.status(200).json({
             message: successMessages.TASK_ADDED,
             data: {
-                task: { title: task.title, _id: task._id, description: task.description, priority: task.priority },
+                task: {
+                    title: task.title,
+                    _id: task._id,
+                    description: task.description,
+                    priority: task.priority,
+                    status: task.status
+                },
             },
         });
     } catch (error) {
+        console.log("error", error)
         // Handle any errors that occur during task creation or user update
         return res.status(500).json({
             message: errorMessages.SOMETHING_WRONG,
@@ -67,7 +75,8 @@ const updatePersonalTaskController = async (req: Request, res: Response) => {
                 title: req?.body?.title,
                 _id: taskId,
                 description: req?.body?.description,
-                priority: req?.body?.priority
+                priority: req?.body?.priority,
+                status: req.body.status
             }
         });
     } catch (error) {

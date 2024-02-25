@@ -9,3 +9,8 @@ export enum PriorityEnum {
   Medium = 'medium',
   Low = 'low',
 }
+export enum StatusEnum {
+  Todo = 'todo',
+  In_Progress = 'in_progress',
+  Done = 'done',
+}
