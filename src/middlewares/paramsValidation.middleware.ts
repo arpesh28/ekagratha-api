@@ -18,6 +18,21 @@ export const checkForObjectId = (
   next();
 };
 
+export const checkRemoveTeamMemberObjectId = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { id: teamId, userId } = req.params;
+  if (!teamId || !mongoose.Types.ObjectId.isValid(teamId))
+    return res.status(400).json({ message: errorMessages.INVALID_TEAM_ID });
+
+  if (!userId || !mongoose.Types.ObjectId.isValid(userId))
+    return res.status(400).json({ message: errorMessages.INVALID_MEMBER_ID });
+
+  next();
+};
+
 export const validateFileUploadParams = (
   req: Request,
   res: Response,

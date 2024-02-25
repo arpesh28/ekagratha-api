@@ -7,6 +7,10 @@ import {
   verifyOtpBodySchema,
   createTeamBodySchema,
   updateTeamBodySchema,
+  resetPasswordBodySchema,
+  inviteTeamMemberBodySchema,
+  acceptInvitationBodySchema,
+  verifyTempUserSchema,
 } from "../common/zodSchema";
 import { getZodErrors } from "../utils/helper.util";
 
@@ -39,6 +43,23 @@ export const validateLoginBody = (
   if (!validate.success) {
     return res.status(400).json({
       message: "Missing Inputs",
+      error: getZodErrors(validate.error.errors),
+    });
+  }
+
+  next();
+};
+
+// Reset Password Body
+export const validateResetPasswordBody = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const validate = resetPasswordBodySchema.safeParse(req.body);
+  if (!validate.success) {
+    return res.status(400).json({
+      message: "Missing Email",
       error: getZodErrors(validate.error.errors),
     });
   }
@@ -98,6 +119,23 @@ export const validateVerifyOtpBody = (
   next();
 };
 
+//verify new password body
+export const validateTempUserBody = (req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const validate = verifyTempUserSchema.safeParse(req.body);
+
+  if (!validate.success) {
+    return res.status(400).json({
+      message: "Missing Inputs",
+      error: getZodErrors(validate.error.errors),
+    });
+  }
+
+  next();
+};
+
 // Create Team Body
 export const validateCreateTeamBody = (
   req: Request,
@@ -112,7 +150,6 @@ export const validateCreateTeamBody = (
       error: getZodErrors(validate.error.errors),
     });
   }
-
   next();
 };
 
@@ -128,6 +165,38 @@ export const validateUpdateTeamBody = (
     return res.status(400).json({
       message: "Missing Inputs",
       error: getZodErrors(validate.error.errors),
+    });
+  }
+
+  next();
+};
+
+export const validateInviteTeamMemberBody = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const validate = inviteTeamMemberBodySchema.safeParse(req.body);
+
+  if (!validate.success) {
+    return res.status(400).json({
+      message: "Email Address is required",
+    });
+  }
+
+  next();
+};
+
+export const validateAcceptInvitationBody = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const validate = acceptInvitationBodySchema.safeParse(req.body);
+
+  if (!validate.success) {
+    return res.status(400).json({
+      message: "Missing Fields",
     });
   }
 
